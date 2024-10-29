@@ -4,11 +4,12 @@ if nargin<2
     sampling =1;
 end
 
-% this is a flag that allow you to activate/deactivate the data augmentation
+% this is a flag that allows you to activate/deactivate the data augmentation
+% set this to 1 for it to be activated
 % Data augmentation will increase the size of the dataset by created variations 
 %(mirroring, flipping, displacements) of each given image. This aims to produce more
 % training images and, therefore, improve performance
-augmented=1;
+augmented=0;
 
 
 fp = fopen(filename, 'rb');
@@ -38,7 +39,7 @@ for im=1:sampling:numberOfImages
     
     images= [images; vector];
     
-    if augmented
+    if augmented == 1
         
         if label==1
             Itemp =fliplr(I);
