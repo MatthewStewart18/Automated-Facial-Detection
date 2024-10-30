@@ -9,7 +9,7 @@ end
 % Data augmentation will increase the size of the dataset by created variations 
 %(mirroring, flipping, displacements) of each given image. This aims to produce more
 % training images and, therefore, improve performance
-augmented=0;
+augmented=1;
 
 
 fp = fopen(filename, 'rb');
