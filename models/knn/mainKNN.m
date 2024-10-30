@@ -33,9 +33,9 @@ end
 % Plot all accuracies
 figure;
 plot(K_values, accuracies, '-o', 'MarkerFaceColor', 'b', 'LineWidth', 1.5);
-xlabel('Value of K (Odd values from 1 to 99)');
+xlabel('Value of K');
 ylabel('Accuracy');
-title('KNN Accuracy for Different Values of K');
+title('KNN Accuracy for Different K');
 grid on;
 
 % Fit a polynomial curve to show the change in accuracy more clearly
@@ -47,9 +47,9 @@ fitted_curve = polyval(p, K_values); % Evaluate polynomial at each K
 figure
 hold on;
 plot(K_values, fitted_curve, '-r', 'LineWidth', 1.5, 'DisplayName', 'Polynomial Fit');
-xlabel('Value of K (Odd values from 1 to 99)');
+xlabel('Value of K');
 ylabel('Accuracy');
-title('Approximated KNN Accuracy Curve for Different Values of K');
+title('KNN Accuracy for Different K');
 legend;
 grid on;
 hold off;
