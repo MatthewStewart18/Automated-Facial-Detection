@@ -12,7 +12,8 @@ addpath('/Users/samuelagnew/Documents/year3Term1/csc3067/CSC3067-2425-G3/utils')
 numTrainingImages = size(trainingImages, 1);
 numTestImages = size(testingImages, 1);
 
-featureMatrix = zeros(numTrainingImages, 19440);
+featureMatrix = zeros(numTrainingImages, 3888);
+
 
 % Add the folder containing loadFaceImages to the MATLAB path
 addpath('/Users/samuelagnew/Documents/year3Term1/csc3067/CSC3067-2425-G3/feature-extraction-utils/gabor');
@@ -20,6 +21,6 @@ addpath('/Users/samuelagnew/Documents/year3Term1/csc3067/CSC3067-2425-G3/feature
 imageList = reshape2dImage(trainingImages);
 for imageNum = 1:length(imageList)
     image = cell2mat(imageList(imageNum));
-    featureMatrix(imageNum, :) = gabor_feature_vector(image);
+    featureMatrix(imageNum, :) = gabor_feature_vector_subset(image);
 end
- featureMatrix = pca(featureMatrix, 2);
+[~, ~, featureMatrix] = pca(featureMatrix, 2);
