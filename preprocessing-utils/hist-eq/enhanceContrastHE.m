@@ -1,4 +1,5 @@
-function [Iout] = improvedEnhanceContrastHE(Iin)
+function [Iout] = enhanceContrastHE(Iin)
+disp(Iin)
 histCounts = imhist(Iin, 256); 
 CH = cumsum(histCounts); 
 
