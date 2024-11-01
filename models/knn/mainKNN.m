@@ -1,11 +1,27 @@
 clear all
 close all
 addpath ../../images
+addpath ../../preprocessing-utils/power-law
+addpath ../../preprocessing-utils/hist-eq
+addpath ../../utils
 
 % Load training and testing datasets
 [trainingImages, trainingLabels] = loadFaceImages("../../images/face_train.cdataset", 1);
 [testingImages, testingLabels] = loadFaceImages("../../images/face_test.cdataset", 1);
+numTrainImages = size(trainingImages, 1);
 numTestImages = size(testingImages, 1);
+
+% pre-process data-sets
+for i = 1:numTrainImages
+    trainingImages(i, :) = enhanceContrastHE(uint8(trainingImages(i, :)));
+end
+
+for i = 1:numTestImages
+    testingImages(i, :) = enhanceContrastHE(uint8(testingImages(i, :)));
+end
+
+images = vertcat(trainingImages, testingImages);
+[U,S,X_reduce] = pca(images, 2);
 
 % Train model
 modelKNN = NNtraining(trainingImages, trainingLabels);
@@ -27,16 +43,8 @@ for i = 1:length(K_values)
 
     % Calculate accuracy
     comparison = (testingLabels == classificationResult);
-    accuracies(i) = sum(comparison) / length(comparison);
-end
-
-% Plot all accuracies
-figure;
-plot(K_values, accuracies, '-o', 'MarkerFaceColor', 'b', 'LineWidth', 1.5);
-xlabel('Value of K');
-ylabel('Accuracy');
-title('KNN Accuracy for Different K');
-grid on;
+     accuracies(i) = sum(comparison) / length(comparison);
+end 
 
 % Fit a polynomial curve to show the change in accuracy more clearly
 poly_degree = 5;
