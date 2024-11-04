@@ -51,6 +51,3 @@ score = score(:, 1:n_components);
 [svm_model, accuracy, precision, recall, f1_score] = trainGaborPCASVM(score, train_labels);
 
 fprintf('Training completed.\n');
-
-% Save the model and results
-save('svm_model.mat', 'svm_model', 'coeff', 'explained', 'n_components');
