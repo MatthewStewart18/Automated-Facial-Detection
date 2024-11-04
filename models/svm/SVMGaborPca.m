@@ -19,7 +19,7 @@ img_width = 18;
 
 % Extract Gabor features
 fprintf('Extracting Gabor features...\n');
-train_features = zeros(size(train_images,1), 3888);
+train_features = zeros(size(train_images,1), 19440);
 
 for i = 1:size(train_images,1)
     if mod(i, 10) == 0
@@ -28,7 +28,7 @@ for i = 1:size(train_images,1)
     img = reshape(train_images(i,:), [img_height img_width]);
     
     % Extract and normalize Gabor features
-    features = gabor_feature_vector_subset(img);
+    features = gabor_feature_vector(img);
     
     % Handle any NaN or Inf values
     features(isnan(features)) = 0;
@@ -41,9 +41,9 @@ end
 train_features = normalize(train_features, 'zscore');
 
 % Apply PCA with variance retention
-[coeff, score, latent] = pca(train_features, 20);
+[coeff, score, latent] = pca(train_features);
 explained = cumsum(latent)./sum(latent);
-n_components = 20; % Keep 95% of variance
+n_components = find(explained >= 0.95, 1); % Keep 95% of variance
 fprintf('Using %d PCA components\n', n_components);
 score = score(:, 1:n_components);
 
