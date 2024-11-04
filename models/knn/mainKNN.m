@@ -1,34 +1,34 @@
 clear all
 close all
 addpath ../../images
-addpath ../../preprocessing-utils/power-law
-addpath ../../preprocessing-utils/hist-eq
-addpath ../../utils
 
-% Load training and testing datasets
-[trainingImages, trainingLabels] = loadFaceImages("../../images/face_train.cdataset", 1);
-[testingImages, testingLabels] = loadFaceImages("../../images/face_test.cdataset", 1);
-numTrainImages = size(trainingImages, 1);
+% Load training and test data
+[trainingImages, trainingLabels] = loadFaceImages('../../images/face_train.cdataset');
+[testingImages, testingLabels] = loadFaceImages('../../images/face_test.cdataset');
 numTestImages = size(testingImages, 1);
 
-% pre-process data-sets
-for i = 1:numTrainImages
-    trainingImages(i, :) = enhanceContrastHE(uint8(trainingImages(i, :)));
-end
+fprintf('Loaded training set: %d images\n', size(trainingImages,1));
 
-for i = 1:numTestImages
-    testingImages(i, :) = enhanceContrastHE(uint8(testingImages(i, :)));
-end
-
-images = vertcat(trainingImages, testingImages);
-[U,S,X_reduce] = pca(images, 2);
+% Apply PCA with variance retention to training set
+[~, score, latent] = pca(trainingImages);
+explained = cumsum(latent)./sum(latent);
+n_components = find(explained >= 0.95, 1); % Keep 95% of variance
+fprintf('Using %d PCA components\n', n_components);
+trainingFeatureSet = score(:, 1:n_components);
 
 % Train model
-modelKNN = NNtraining(trainingImages, trainingLabels);
+fprintf('Training KNN model on PCA data ...\n')
+modelKNN = NNtraining(trainingFeatureSet, trainingLabels);
+
+% Apply PCA of same dimension to testing set
+[~, score, latent] = pca(testingImages);
+testingFeatureSet = score(:, 1:n_components);
 
 % Initialize arrays to store K values and their corresponding accuracies
 K_values = 1:2:99; % odd values from 1 to 99
 accuracies = zeros(length(K_values), 1);
+
+fprintf('Evaluating model for different K.\n');
 
 % Evaluate accuracy for each odd K
 for i = 1:length(K_values)
@@ -37,14 +37,18 @@ for i = 1:length(K_values)
 
     % For each testing image, obtain a prediction based on the trained model
     for j = 1:numTestImages
-        testImage = testingImages(j, :);
+        testImage = testingFeatureSet(j, :);
         classificationResult(j, 1) = KNNTesting(testImage, modelKNN, K);
     end
 
     % Calculate accuracy
     comparison = (testingLabels == classificationResult);
-     accuracies(i) = sum(comparison) / length(comparison);
+    accuracies(i) = sum(comparison) / length(comparison);
 end 
+
+highestAcc = round(max(accuracies)*100);
+fprintf('Evaluation complete, highest accuracy was %d percent.\n', highestAcc);
+
 
 % Fit a polynomial curve to show the change in accuracy more clearly
 poly_degree = 5;

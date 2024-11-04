@@ -27,7 +27,7 @@ for i = 1:size(train_images,1)
     end
     img = reshape(train_images(i,:), [img_height img_width]);
     
-    % Extract and normalize Gabor features
+    % Extract Gabor features
     features = gabor_feature_vector(img);
     
     % Handle any NaN or Inf values
