@@ -1,12 +1,3 @@
-% gabor_pca_v3.m
-clear all;
-close all;
-
-% Add required paths
-addpath ../../images
-addpath ../../utils
-addpath ../../feature-extraction-utils/gabor
-
 % Load training and test data
 [train_images, train_labels] = loadFaceImages('../../images/face_train.cdataset');
 [test_images, test_labels] = loadFaceImages('../../images/face_test.cdataset');
@@ -46,8 +37,3 @@ explained = cumsum(latent)./sum(latent);
 n_components = find(explained >= 0.95, 1); % Keep 95% of variance
 fprintf('Using %d PCA components\n', n_components);
 score = score(:, 1:n_components);
-
-% Train SVM using trainGaborPCASVM
-[svm_model, accuracy, precision, recall, f1_score] = trainGaborPCASVM(score, train_labels);
-
-fprintf('Training completed.\n');
