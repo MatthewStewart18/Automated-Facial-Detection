@@ -14,7 +14,7 @@ sigma = (1/m)*(X'*X);
 [U, S] = svd(sigma);
 
 X_reduce = zeros(size(X, 1), n); 
-U_reduce = U(:,1:n);      
+U_reduce = U(:,1:n); 
 for i=1:m
     for j=1:n
         x= X(i,:)';            
