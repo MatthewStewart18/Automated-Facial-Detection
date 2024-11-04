@@ -1,22 +1,20 @@
 % Load training and test data
-[train_images, train_labels] = loadFaceImages('../../images/face_train.cdataset');
-[test_images, test_labels] = loadFaceImages('../../images/face_test.cdataset');
-
-fprintf('Loaded training set: %d images\n', size(train_images,1));
+[trainingImages, trainingLabels] = loadFaceImages('../../images/face_train.cdataset');
+[testingImages, testingLabels] = loadFaceImages('../../images/face_test.cdataset');
+numTrainingImages = size(trainingImages, 1);
+numTestImages = size(testingImages, 1);
+fprintf('Loaded augmented training set: %d images\n', size(trainingImages,1));
 
 % Set correct image dimensions
-img_height = 27;
-img_width = 18;
+imgHeight = 27;
+imgWidth = 18;
 
 % Extract Gabor features
 fprintf('Extracting Gabor features...\n');
-train_features = zeros(size(train_images,1), 19440);
+trainingFeatureSet = zeros(size(trainingImages, 1), 19440);
 
-for i = 1:size(train_images,1)
-    if mod(i, 10) == 0
-        fprintf('Processing training image %d/%d\n', i, size(train_images,1));
-    end
-    img = reshape(train_images(i,:), [img_height img_width]);
+for i = 1:size(trainingImages, 1)
+    img = reshape(trainingImages(i,:), [imgHeight, imgWidth]);
     
     % Extract Gabor features
     features = gabor_feature_vector(img);
@@ -25,15 +23,37 @@ for i = 1:size(train_images,1)
     features(isnan(features)) = 0;
     features(isinf(features)) = 0;
     
-    train_features(i, :) = features;
+    trainingFeatureSet(i, :) = features;
 end
 
 % Normalize features before PCA
-train_features = normalize(train_features, 'zscore');
+trainingFeatureSet = normalize(trainingFeatureSet, 'zscore');
 
-% Apply PCA with variance retention
-[coeff, score, latent] = pca(train_features);
+% Apply PCA with variance retention to training set
+[~, score, latent] = pca(trainingFeatureSet);
 explained = cumsum(latent)./sum(latent);
 n_components = find(explained >= 0.95, 1); % Keep 95% of variance
 fprintf('Using %d PCA components\n', n_components);
-score = score(:, 1:n_components);
+trainingFeatureSet = score(:, 1:n_components);
+
+% Train model
+fprintf('Training KNN model on PCA data ...\n')
+modelKNN = NNtraining(trainingFeatureSet, trainingLabels);
+
+% Apply PCA of same dimension to testing set
+[~, score, latent] = pca(testingImages);
+testingFeatureSet = score(:, 1:n_components);
+
+% Set K to sqrt(N)
+K = round(sqrt(numTrainingImages));
+K = 5;
+
+fprintf('Getting model predictions for K = %d\n', K);
+predictions = zeros(numTestImages);
+for i = 1:numTestImages
+    testImage = testingFeatureSet(i, :);
+    predictions(i, 1) = KNNTesting(testImage, modelKNN, K);
+end
+
+fprintf('Evaluating model predictions...\n');
+[~] = calculateMetrics(predictions, testingLabels);
