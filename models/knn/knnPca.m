@@ -25,9 +25,9 @@ modelKNN = NNtraining(trainingFeatureSet, trainingLabels);
 testingFeatureSet = score(:, 1:n_components);
 
 % Set K to sqrt(N)
-% K = round(sqrt(numTrainingImages)); 
+K = round(sqrt(numTrainingImages)); 
 % this isnt working great, using 50 temporarily
-K = 50;
+% K = 50;
 
 fprintf('Getting model predictions for K = %d\n', K);
 predictions = zeros(numTestImages);

@@ -13,7 +13,7 @@ imgWidth = 18;
 fprintf('Extracting Gabor features...\n');
 trainingFeatureSet = zeros(size(trainingImages, 1), 19440);
 
-for i = 1:size(trainingImages, 1)
+for i = 1:numTrainingImages
     img = reshape(trainingImages(i,:), [imgHeight, imgWidth]);
     
     % Extract Gabor features
@@ -26,19 +26,15 @@ for i = 1:size(trainingImages, 1)
     trainingFeatureSet(i, :) = features;
 end
 
-% Normalize features before PCA
+% Normalize training features
 trainingFeatureSet = normalize(trainingFeatureSet, 'zscore');
 
-% Apply PCA with variance retention to training set
-[~, score, latent] = pca(trainingFeatureSet);
-explained = cumsum(latent)./sum(latent);
-n_components = find(explained >= 0.95, 1); % Keep 95% of variance
-fprintf('Using %d PCA components\n', n_components);
-trainingFeatureSet = score(:, 1:n_components);
-
 % Train model
-fprintf('Training KNN model on PCA data ...\n')
+fprintf('Training KNN model on Gabor features ...\n')
 modelKNN = NNtraining(trainingFeatureSet, trainingLabels);
+
+% Set K to sqrt(N)
+K = round(sqrt(numTrainingImages));
 
 % Extract Gabor features for test set
 fprintf('Extracting Gabor features...\n');
@@ -59,13 +55,6 @@ end
 
 % Normalize testing features
 testingFeatureSet = normalize(testingFeatureSet, 'zscore');
-
-% Apply PCA of same dimension to testing set
-[~, score, latent] = pca(testingFeatureSet);
-testingFeatureSet = score(:, 1:n_components);
-
-% Set K to sqrt(N)
-K = round(sqrt(numTrainingImages));
 
 fprintf('Getting model predictions for K = %d\n', K);
 predictions = zeros(numTestImages);
