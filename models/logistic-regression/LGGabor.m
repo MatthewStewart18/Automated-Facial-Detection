@@ -53,9 +53,6 @@ testingLabels(testingLabels == -1) = 0;
 % Fit logistic regression model
 mdl = fitglm(featureMatrixTraining, trainingLabels, 'Distribution', 'binomial');
 
-% Display the model summary
-disp(mdl);
-
 % Predict probabilities for the test data
 predictedProbabilities = predict(mdl, featureMatrixTest);
 
