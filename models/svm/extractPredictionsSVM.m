@@ -4,5 +4,6 @@ for i = 1:size(test_features, 1)
     testImage = test_features(i, :);
     predictions(i, 1) = SVMTesting(testImage, modelSVM);
 end
+predictions = predictions(:, 1);
 end
 
