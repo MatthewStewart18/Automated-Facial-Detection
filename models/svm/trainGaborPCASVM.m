@@ -6,6 +6,7 @@ function [model, accuracy, precision, recall, f1_score] = trainGaborPCASVM(score
     
     % Add squared terms for non-linear features
     score_squared = score_std.^2;
+    SVMtraining_v2()
     
     % Add interaction terms between key components
     n_components = min(5, size(score_std, 2)); % Use top 5 components for interactions

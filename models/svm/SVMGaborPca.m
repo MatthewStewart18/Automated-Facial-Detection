@@ -10,7 +10,8 @@ addpath ../../feature-extraction-utils/gabor
 % Load training and test data
 [train_images, train_labels] = loadFaceImages('../../images/face_train.cdataset');
 [test_images, test_labels] = loadFaceImages('../../images/face_test.cdataset');
-
+numTrainingImages = size(train_images, 1);
+numTestImages = size(test_images, 1);
 fprintf('Loaded training set: %d images\n', size(train_images,1));
 
 % Set correct image dimensions
@@ -20,7 +21,7 @@ img_width = 18;
 % Extract Gabor features
 fprintf('Extracting Gabor features...\n');
 train_features = zeros(size(train_images,1), 19440);
-
+train_images = normalize(train_images, 'zscore');
 for i = 1:size(train_images,1)
     if mod(i, 10) == 0
         fprintf('Processing training image %d/%d\n', i, size(train_images,1));
@@ -41,13 +42,49 @@ end
 train_features = normalize(train_features, 'zscore');
 
 % Apply PCA with variance retention
-[coeff, score, latent] = pca(train_features);
+[~, score, latent] = pca(train_features);
 explained = cumsum(latent)./sum(latent);
 n_components = find(explained >= 0.95, 1); % Keep 95% of variance
 fprintf('Using %d PCA components\n', n_components);
-score = score(:, 1:n_components);
 
-% Train SVM using trainGaborPCASVM
-[svm_model, accuracy, precision, recall, f1_score] = trainGaborPCASVM(score, train_labels);
+train_features = score(:, 1:n_components);
+train_features = normalize(train_features, 'zscore');
 
+% Train the model 
+modelSVM = SVMtraining(train_features, train_labels);
+
+% Normalize the test images before extracting the Gabor features
+test_features = zeros(size(test_images,1), 19440);
+test_images = normalize(test_images, 'zscore');
+
+for i = 1:size(test_images,1)
+    if mod(i, 10) == 0
+        fprintf('Processing testing image %d/%d\n', i, size(test_images,1));
+    end
+    img = reshape(test_images(i,:), [img_height img_width]);
+    
+    % Extract Gabor features
+    features = gabor_feature_vector(img);
+    
+    % Handle any NaN or Inf values
+    features(isnan(features)) = 0;
+    features(isinf(features)) = 0;
+    
+    test_features(i, :) = features;
+end
+
+% Apply Pca to the test features and normalize
+fprintf('Getting model predictions for test set\n');
+predictions = zeros(numTestImages, 1);
+[coeff, score, latent] = pca(test_features);
+test_features = score(:, 1:n_components);
+test_features = normalize(test_features, 'zscore');
+
+% Get the predictions
+for i = 1:numTestImages
+    testImage = test_features(i, :);
+    predictions(i) = SVMTesting(testImage, modelSVM);
+end
+fprintf('Evaluating model predictions...\n');
+[accuracy, precision, recall, f1_score] = calculateMetrics(predictions, test_labels);
 fprintf('Training completed.\n');
