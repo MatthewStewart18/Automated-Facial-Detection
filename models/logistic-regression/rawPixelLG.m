@@ -1,18 +1,13 @@
 clear all
 close all
 addpath ../../images
-
-% Add the folder containing loadFaceImages to the MATLAB path
-addpath('/Users/samuelagnew/Documents/year3Term1/csc3067/CSC3067-2425-G3/utils');
+addpath ../../utils
 
 % Load training and testing datasets
 [trainingImages, trainingLabels] = loadFaceImages("../../images/face_train.cdataset", 1);
 [testingImages, testingLabels] = loadFaceImages("../../images/face_test.cdataset", 1);
 numTrainingImages = size(trainingImages, 1);
 numTestImages = size(testingImages, 1);
-
-% Add the folder containing loadFaceImages to the MATLAB path
-addpath('/Users/samuelagnew/Documents/year3Term1/csc3067/CSC3067-2425-G3/feature-extraction-utils/gabor');
 
 %converting -1 to 0
 trainingLabels(trainingLabels == -1) = 0;
