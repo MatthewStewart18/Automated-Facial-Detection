@@ -14,8 +14,11 @@ trainingLabels(trainingLabels == -1) = 0;
 
 testingLabels(testingLabels == -1) = 0;
 
+options = statset('glmfit');
+options.MaxIter = 500;
+
 % Fit logistic regression model
-mdl = fitglm(trainingImages, trainingLabels, 'Distribution', 'binomial');
+mdl = fitglm(trainingImages, trainingLabels, 'linear','Distribution', 'binomial','Options', options,'LikelihoodPenalty', 'jeffreys-prior');
 
 % Display the model summary
 disp(mdl);
@@ -34,4 +37,7 @@ predictedLabels(predictedLabels == 0) = -1;
 testingLabels(testingLabels == 0) = -1;
 
 fprintf('Evaluating model predictions...\n');
-[~] = calculateMetrics(predictedLabels, testingLabels);
+[accuracy, precision, recall, f1_score, confusionMatrix] = calculateMetrics(predictedLabels, testingLabels);
+
+
+createRatioBarChartSVM(confusionMatrix, "Raw Pixel Logistic-Regression", accuracy, precision, recall,f1_score)

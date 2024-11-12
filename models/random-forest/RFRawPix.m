@@ -28,7 +28,7 @@ numFolds = 10; % Or 10 if the dataset is very small
 cv = cvpartition(Y, 'KFold', numFolds);
 
 % Number of trees in each model (lower values are usually fine for small data)
-numTrees = 300; % Adjust as needed to prevent overfitting
+numTrees = 350; % Adjust as needed to prevent overfitting
 
 % Array to store metrics
 accuracy = zeros(numFolds, 1); % Accuracy per fold
@@ -98,4 +98,6 @@ fprintf('FalseNegative: %d\n', FalseNegativeCount);
  predictedLabels = predict(rfModel, test_images);
  predictedLabels = str2double(predictedLabels);
 fprintf('Evaluating model predictions...\n');
-[~] = calculateMetrics(predictedLabels, test_labels);
+[accuracy, precision, recall, f1_score, confusionMatrix] = calculateMetrics(predictedLabels, test_labels);
+
+createRatioBarChartSVM(confusionMatrix, "Raw Pixel Random-Forest", accuracy, precision, recall,f1_score)

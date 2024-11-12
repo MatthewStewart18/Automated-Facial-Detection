@@ -66,7 +66,7 @@ function createRatioBarChartSVM(confusionMatrix, modelName, accuracy, precision,
     ylabel('Actual', 'FontWeight', 'bold');
     title('Confusion Matrix', 'FontWeight', 'bold');
     
-    sgtitle(sprintf('SVM Performance Analysis - %s', modelName), 'FontSize', 14);
+    sgtitle(sprintf('Performance Analysis - %s', modelName), 'FontSize', 14);
     
     % background white
     set(gcf, 'Color', 'white');
