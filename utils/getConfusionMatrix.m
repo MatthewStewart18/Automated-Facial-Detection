@@ -1,4 +1,4 @@
-function [TP, TN, FP, FN] = getConfusionMatrix(predictions, labels)
+function [TP, FP, FN, TN] = getConfusionMatrix(predictions, labels)
     TP = sum(predictions == 1 & labels == 1);
     TP = TP(1);
     TN = sum(predictions == -1 & labels == -1);
