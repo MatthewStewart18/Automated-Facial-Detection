@@ -8,13 +8,18 @@ addpath ../../utils
 % Load training and test data
 [train_images, train_labels] = loadFaceImages('../../images/face_train.cdataset');
 [test_images, test_labels] = loadFaceImages('../../images/face_test.cdataset');
-
 fprintf('Loaded training set: %d images\n', size(train_images,1));
 
-% Load example data (replace this with your own data)
-X = [train_images];   % Example feature matrix with 100 samples and 10 features
-Y = [train_labels];  % Example binary response vector
+% Apply PCA with variance retention to training set
+[~, score, latent] = pca(train_images);
+explained = cumsum(latent)./sum(latent);
+n_components = find(explained >= 0.95, 1); % Keep 95% of variance
+fprintf('Using %d PCA components\n', n_components);
+trainingFeatureSet = score(:, 1:n_components);
 
+% Load example data (replace this with your own data)
+X = [trainingFeatureSet];   % Example feature matrix with 100 samples and 10 features
+Y = [train_labels];  % Example binary response vector
 
 % Define the number of folds (use higher folds like 10 for small datasets)
 numFolds = 10; % Or 10 if the dataset is very small
@@ -61,32 +66,36 @@ end
 avgAccuracy = mean(accuracy);
 disp(['Average Cross-Validated Accuracy: ', num2str(avgAccuracy * 100), '%']);
 
-fprintf('Evaluating model predictions...\n');
-TruePositiveCount = 0;
-TrueNegativeCount = 0;
-FalsePositiveCount = 0; 
-FalseNegativeCount = 0;
+% Apply PCA with variance retention to testing set
+[~, score, latent] = pca(test_images);
+explained = cumsum(latent)./sum(latent);
+fprintf('Using %d PCA components\n', n_components);
+testingFeatureSet = score(:, 1:n_components);
 
-for i = 1:length(confusionMatrixList)
+%fprintf('Evaluating model predictions...\n');
+%TruePositiveCount = 0;
+%TrueNegativeCount = 0;
+%FalsePositiveCount = 0; 
+%FalseNegativeCount = 0;
+
+%for i = 1:length(confusionMatrixList)
  %   confusionMatrixStruct = cell2struct(confusionMatrixList(i)); 
-    TruePositiveCount = TruePositiveCount + confusionMatrixList{i}.TruePositive;
-    TrueNegativeCount = TrueNegativeCount + confusionMatrixList{i}.TrueNegative;
-    FalsePositiveCount = FalsePositiveCount + confusionMatrixList{i}.FalsePositive; 
-    FalseNegativeCount = FalseNegativeCount + confusionMatrixList{i}.FalseNegative;
+%    TruePositiveCount = TruePositiveCount + confusionMatrixList{i}.TruePositive;
+%    TrueNegativeCount = TrueNegativeCount + confusionMatrixList{i}.TrueNegative;
+%    FalsePositiveCount = FalsePositiveCount + confusionMatrixList{i}.FalsePositive; 
+%    FalseNegativeCount = FalseNegativeCount + confusionMatrixList{i}.FalseNegative;
 
-end
+%end
 
-fprintf('\nClassification Results:\n');
-fprintf('TruePositive: %d\n', TruePositiveCount);
-fprintf('TrueNegative: %d\n', TrueNegativeCount);
-fprintf('FalsePositive: %d\n', FalsePositiveCount);
-fprintf('FalseNegative: %d\n', FalseNegativeCount);
+%fprintf('\nClassification Results:\n');
+%fprintf('TruePositive: %d\n', TruePositiveCount);
+%fprintf('TrueNegative: %d\n', TrueNegativeCount);
+%fprintf('FalsePositive: %d\n', FalsePositiveCount);
+%fprintf('FalseNegative: %d\n', FalseNegativeCount);
 
-
-
- predictedLabels = predict(rfModel, test_images);
- predictedLabels = str2double(predictedLabels);
+predictedLabels = predict(rfModel, testingFeatureSet);
+predictedLabels = str2double(predictedLabels);
 fprintf('Evaluating model predictions...\n');
 [accuracy, precision, recall, f1_score, confusionMatrix] = calculateMetrics(predictedLabels, test_labels);
 
-createRatioBarChartSVM(confusionMatrix, "Raw Pixel Random-Forest", accuracy, precision, recall,f1_score)
+createRatioBarChartSVM(confusionMatrix, "Edges Random-Forest", accuracy, precision, recall,f1_score)

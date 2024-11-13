@@ -4,17 +4,19 @@ close all;
 % Add required paths
 addpath ../../images
 addpath ../../utils
+addpath ../../feature-extraction-utils/edges/
 
 % Load training and test data
 [train_images, train_labels] = loadFaceImages('../../images/face_train.cdataset');
 [test_images, test_labels] = loadFaceImages('../../images/face_test.cdataset');
-
 fprintf('Loaded training set: %d images\n', size(train_images,1));
 
-% Load example data (replace this with your own data)
-X = [train_images];   % Example feature matrix with 100 samples and 10 features
-Y = [train_labels];  % Example binary response vector
+% define mask
+training_edges = extractEdges(train_images);
 
+% Load example data (replace this with your own data)
+X = [training_edges];   % Example feature matrix with 100 samples and 10 features
+Y = [train_labels];  % Example binary response vector
 
 % Define the number of folds (use higher folds like 10 for small datasets)
 numFolds = 10; % Or 10 if the dataset is very small
@@ -61,32 +63,34 @@ end
 avgAccuracy = mean(accuracy);
 disp(['Average Cross-Validated Accuracy: ', num2str(avgAccuracy * 100), '%']);
 
-fprintf('Evaluating model predictions...\n');
-TruePositiveCount = 0;
-TrueNegativeCount = 0;
-FalsePositiveCount = 0; 
-FalseNegativeCount = 0;
+% Extract test edges
+test_edges = extractEdges(test_images);
 
-for i = 1:length(confusionMatrixList)
+
+%fprintf('Evaluating model predictions...\n');
+%TruePositiveCount = 0;
+%TrueNegativeCount = 0;
+%FalsePositiveCount = 0; 
+%FalseNegativeCount = 0;
+
+%for i = 1:length(confusionMatrixList)
  %   confusionMatrixStruct = cell2struct(confusionMatrixList(i)); 
-    TruePositiveCount = TruePositiveCount + confusionMatrixList{i}.TruePositive;
-    TrueNegativeCount = TrueNegativeCount + confusionMatrixList{i}.TrueNegative;
-    FalsePositiveCount = FalsePositiveCount + confusionMatrixList{i}.FalsePositive; 
-    FalseNegativeCount = FalseNegativeCount + confusionMatrixList{i}.FalseNegative;
+%    TruePositiveCount = TruePositiveCount + confusionMatrixList{i}.TruePositive;
+%    TrueNegativeCount = TrueNegativeCount + confusionMatrixList{i}.TrueNegative;
+%    FalsePositiveCount = FalsePositiveCount + confusionMatrixList{i}.FalsePositive; 
+%    FalseNegativeCount = FalseNegativeCount + confusionMatrixList{i}.FalseNegative;
 
-end
+%end
 
-fprintf('\nClassification Results:\n');
-fprintf('TruePositive: %d\n', TruePositiveCount);
-fprintf('TrueNegative: %d\n', TrueNegativeCount);
-fprintf('FalsePositive: %d\n', FalsePositiveCount);
-fprintf('FalseNegative: %d\n', FalseNegativeCount);
+%fprintf('\nClassification Results:\n');
+%fprintf('TruePositive: %d\n', TruePositiveCount);
+%fprintf('TrueNegative: %d\n', TrueNegativeCount);
+%fprintf('FalsePositive: %d\n', FalsePositiveCount);
+%fprintf('FalseNegative: %d\n', FalseNegativeCount);
 
-
-
- predictedLabels = predict(rfModel, test_images);
- predictedLabels = str2double(predictedLabels);
+predictedLabels = predict(rfModel, test_edges);
+predictedLabels = str2double(predictedLabels);
 fprintf('Evaluating model predictions...\n');
 [accuracy, precision, recall, f1_score, confusionMatrix] = calculateMetrics(predictedLabels, test_labels);
 
-createRatioBarChartSVM(confusionMatrix, "Raw Pixel Random-Forest", accuracy, precision, recall,f1_score)
+createRatioBarChartSVM(confusionMatrix, "Edges Random-Forest", accuracy, precision, recall,f1_score)
