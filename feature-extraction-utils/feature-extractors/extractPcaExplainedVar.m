@@ -1,4 +1,4 @@
-function [reducedFeatures, n_components] = pcaExplainedVar(features, varLevel)
+function [reducedFeatures, n_components] = extractPcaExplainedVar(features, varLevel)
 [~, score, latent] = pca(features);
 explained = cumsum(latent)./sum(latent);
 n_components = find(explained >= varLevel, 1); % Keep <varLevel>% of variance

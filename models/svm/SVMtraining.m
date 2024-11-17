@@ -12,8 +12,8 @@ function model = SVMtraining(images, labels)
         %Initilaise and setup SVM parameters
         lambda = 1e-20;  
         C = Inf;
-        kerneloption=5;
-        kernel='poly';
+        kerneloption=4.3;
+        kernel='gaussian';
     
         % Calculate the support vectors
         [xsup,w,w0,pos,tps,alpha] = svmclass(images,labels,C,lambda,kernel,kerneloption,1);

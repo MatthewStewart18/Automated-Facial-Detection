@@ -2,29 +2,33 @@ clear all;
 close all;
 
 % Add required paths
+addpath SVM-KM
 addpath ../../images
 addpath ../../utils
-addpath ../../feature-extraction-utils/edges/
-addpath ../../preprocessing-utils/hist-eq/
-addpath ../../preprocessing-utils/
-addpath SVM-KM/
+addpath ../../feature-extraction-utils
+addpath ../../preprocessing-utils
 
 % Load training and test data
 [train_images, train_labels] = loadFaceImages('../../images/face_train.cdataset');
 [test_images, test_labels] = loadFaceImages('../../images/face_test.cdataset');
 fprintf('Loaded training set: %d images\n', size(train_images,1));
 
-% preProcess the images
-% [train_images, test_images] = preProcessImages(train_images, test_images);
+% Choose the feature extraction and pre-processing methods
+featureExtractorFunc = @extractEdges;
+preprocessingFunc = @histEq;
 
-% define mask
-training_edges = extractEdges(train_images);
+% pre-process images
+train_images = preProcess(train_images, preprocessingFunc);
+test_images = preProcess(test_images, preprocessingFunc);
+
+% Extract features from training images
+training_edges = featureExtraction(train_images, featureExtractorFunc);
 
 % Train model on reduced dimension of edges
 modelSVM = SVMtraining(training_edges, train_labels);
 
 % Extract test edges
-test_edges = extractEdges(test_images);
+test_edges = featureExtraction(test_images, featureExtractorFunc);
 
 % Getting model predictions using Gaussian SVM on Edges
 predictions = extractPredictionsSVM(test_edges, modelSVM);

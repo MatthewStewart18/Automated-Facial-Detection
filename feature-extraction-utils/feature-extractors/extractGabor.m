@@ -1,4 +1,4 @@
-function vector = gabor_feature_vector(image)
+function vector = extractGabor(image)
 
 load gabor;
 image = adapthisteq(image,'Numtiles',[8 3]);
