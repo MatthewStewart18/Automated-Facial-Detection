@@ -28,3 +28,5 @@ end
 
 fprintf('Evaluating model predictions...\n');
 [accuracy, precision, recall, f1_score] = calculateMetrics(predictions, testingLabels);
+
+save('modelSVM.mat', 'modelSVM');

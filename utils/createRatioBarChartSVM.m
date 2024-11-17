@@ -18,7 +18,7 @@ function createRatioBarChartSVM(confusionMatrix, modelName, accuracy, precision,
         b.CData(j,:) = colors(j,:);
     end
     
-    title(sprintf('SVM %s Metrics', modelName), 'FontSize', 12);
+    title(sprintf('%s Edges Metrics', modelName), 'FontSize', 12);
     ylabel('Score');
     set(gca, 'XTickLabel', {'Accuracy', 'Precision', 'Recall', 'F1-Score'});
     ylim([0 1]); % Scale from 0 to 1
@@ -66,7 +66,7 @@ function createRatioBarChartSVM(confusionMatrix, modelName, accuracy, precision,
     ylabel('Actual', 'FontWeight', 'bold');
     title('Confusion Matrix', 'FontWeight', 'bold');
     
-    sgtitle(sprintf('Performance Analysis - %s', modelName), 'FontSize', 14);
+    sgtitle(sprintf('Performance Analysis - %s Edges', modelName), 'FontSize', 14);
     
     % background white
     set(gcf, 'Color', 'white');

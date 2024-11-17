@@ -34,3 +34,6 @@ fprintf('Evaluating model predictions...\n');
 
 % Display images of the correct/incorrect predictions
 dispPreds(predictions, test_labels, test_images);
+
+% Save the trained KNN model to a .mat file
+save('modelSVM.mat', 'modelSVM');

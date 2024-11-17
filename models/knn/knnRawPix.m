@@ -1,6 +1,7 @@
 clear all
 close all
 addpath ../../images
+addpath ../../utils
 
 % Load training and test data
 [trainingImages, trainingLabels] = loadFaceImages('../../images/face_train.cdataset');
@@ -30,3 +31,6 @@ fprintf('Evaluating model predictions...\n');
 
 % Display images of the correct/incorrect predictions
 dispPreds(predictions(:, 1), testingLabels, testingImages);
+
+% Save the trained KNN model to a .mat file
+save('modelKNN.mat', 'modelKNN', 'K');

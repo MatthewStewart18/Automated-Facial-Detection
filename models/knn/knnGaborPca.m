@@ -1,3 +1,9 @@
+clear all
+close all
+addpath ../../images
+addpath ../../utils
+addpath ../../feature-extraction-utils/gabor
+
 % Load training and test data
 [trainingImages, trainingLabels] = loadFaceImages('../../images/face_train.cdataset');
 [testingImages, testingLabels] = loadFaceImages('../../images/face_test.cdataset');

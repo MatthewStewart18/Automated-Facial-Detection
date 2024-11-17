@@ -10,12 +10,10 @@ function model = SVMtraining(images, labels)
         labels(labels==0)=-1;
     
         %Initilaise and setup SVM parameters
-        lambda = 1e-10;  
-        C = 5;
-        sigmakernel=4;
-        K=svmkernel(images,'gaussian',sigmakernel);
-        kerneloption.matrix=K;
-        kernel='numerical';
+        lambda = 1e-20;  
+        C = Inf;
+        kerneloption=5;
+        kernel='poly';
     
         % Calculate the support vectors
         [xsup,w,w0,pos,tps,alpha] = svmclass(images,labels,C,lambda,kernel,kerneloption,1);
@@ -25,7 +23,7 @@ function model = SVMtraining(images, labels)
         model.w = w;
         model.w0 = w0;
     
-        model.param.sigmakernel=sigmakernel;
+        model.param.kerneloption=kerneloption;
         model.param.kernel=kernel;
     
     else
