@@ -1,6 +1,13 @@
 function model = SVMtraining(images, labels, params)
+    % Check if params was provided; if not, initialize with defaults
+    if nargin < 3
+        params.lambda = 1e-20;         % Regularization parameter
+        params.C = Inf;                % Trade-off parameter for SVM
+        params.kerneloption = 5;       % Kernel-specific parameter (e.g., Gaussian width)
+        params.kernel = 'gaussian';    % Type of kernel (e.g. 'poly', 'gaussian')
+    end
 
-    % Default parameters if fields are missing
+    % Use default parameters for missing fields
     if ~isfield(params, 'lambda')
         params.lambda = 1e-20;
     end
