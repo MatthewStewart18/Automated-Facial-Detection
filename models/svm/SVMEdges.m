@@ -24,13 +24,12 @@ test_images = preProcess(test_images, preprocessingFunc);
 % Extract features from training images
 training_edges = featureExtraction(train_images, featureExtractorFunc);
 
-% Train model on reduced dimension of edges
-modelSVM = SVMtraining(training_edges, train_labels);
+% Define optimal parameters for the edge-based SVM model
+params = struct('lambda', 1e-20, 'C', Inf, 'kerneloption', 4.3, 'kernel', 'gaussian');
+modelSVM = SVMtraining(training_edges, train_labels, params);
 
 % Extract test edges
 test_edges = featureExtraction(test_images, featureExtractorFunc);
-
-% Getting model predictions using Gaussian SVM on Edges
 predictions = extractPredictionsSVM(test_edges, modelSVM);
 
 fprintf('Evaluating model predictions...\n');
@@ -39,5 +38,5 @@ fprintf('Evaluating model predictions...\n');
 % Display images of the correct/incorrect predictions
 dispPreds(predictions, test_labels, test_images);
 
-% Save the trained KNN model to a .mat file
+% Save the trained SVM model to a .mat file
 save('modelSVM.mat', 'modelSVM');

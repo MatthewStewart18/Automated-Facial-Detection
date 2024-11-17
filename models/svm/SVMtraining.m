@@ -1,59 +1,32 @@
-function model = SVMtraining(images, labels)
+function model = SVMtraining(images, labels, params)
 
-
-    % first we check if the problem is binary classification or multiclass
-    if max(labels)<2
-        %binary classification
-        model.type='binary';
-    
-        %SVM software requires labels -1 or 1 for the binary problem
-        labels(labels==0)=-1;
-    
-        %Initilaise and setup SVM parameters
-        lambda = 1e-20;  
-        C = Inf;
-        kerneloption=4.3;
-        kernel='gaussian';
-    
-        % Calculate the support vectors
-        [xsup,w,w0,pos,tps,alpha] = svmclass(images,labels,C,lambda,kernel,kerneloption,1);
-    
-        % create a structure encapsulating all teh variables composing the model
-        model.xsup = xsup;
-        model.w = w;
-        model.w0 = w0;
-    
-        model.param.kerneloption=kerneloption;
-        model.param.kernel=kernel;
-    
-    else
-        %multiple class classification
-         model.type='multiclass';
-    
-        %SVM software requires labels from 1 to N for the multi-class problem
-        labels = labels+1;
-        nbclass=max(labels);
-    
-        %Initilaise and setup SVM parameters
-        lambda = 1e-5;
-        C = 1;
-        kerneloption = 0.5;
-        kernel='gaussian';
-    
-        % Calculate the support vectors
-        [xsup,w,b,nbsv]=svmmulticlassoneagainstall(images,labels,nbclass,C,lambda,kernel,kerneloption,1);
-    
-        % create a structure encapsulating all teh variables composing the model
-        model.xsup = xsup;
-        model.w = w;
-        model.b = b;
-        model.nbsv = nbsv;
-    
-        model.param.kerneloption=kerneloption;
-        model.param.kernel=kernel;
-    
+    % Default parameters if fields are missing
+    if ~isfield(params, 'lambda')
+        params.lambda = 1e-20;
     end
-    
-    
-    
-    end%
+    if ~isfield(params, 'C')
+        params.C = Inf;
+    end
+    if ~isfield(params, 'kerneloption')
+        params.kerneloption = 5;
+    end
+    if ~isfield(params, 'kernel')
+        params.kernel = 'gaussian';
+    end
+
+    %binary classification
+    model.type='binary';
+
+    %SVM software requires labels -1 or 1 for the binary problem
+    labels(labels==0)=-1;
+
+    % Calculate the support vectors
+    [xsup,w,w0,pos,tps,alpha] = svmclass(images, labels, params.C, params.lambda, ...
+                                            params.kernel, params.kerneloption, 1);
+
+    % create a structure encapsulating all the variables composing the model
+    model.xsup = xsup;
+    model.w = w;
+    model.w0 = w0;
+    model.params=params;   
+end
