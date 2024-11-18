@@ -25,7 +25,7 @@ test_images = preProcess(test_images, preprocessingFunc);
 training_edges = featureExtraction(train_images, featureExtractorFunc);
 
 % Define optimal parameters for the edge-based SVM model
-params = struct('lambda', 1e-20, 'C', Inf, 'kerneloption', 4.3, 'kernel', 'gaussian');
+params = struct('kerneloption', 3.75, 'kernel', 'polyhomog');
 modelSVM = SVMtraining(training_edges, train_labels, params);
 
 % Extract test edges
@@ -39,4 +39,4 @@ fprintf('Evaluating model predictions...\n');
 dispPreds(predictions, test_labels, test_images);
 
 % Save the trained SVM model to a .mat file
-save('modelSVM.mat', 'modelSVM');
+save('saved-models/modelSVMEdges.mat', 'modelSVM');

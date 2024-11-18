@@ -36,7 +36,7 @@ fprintf('Evaluating model predictions...\n');
 [~] = calculateMetrics(predictions, test_labels);
 
 % Display images of the correct/incorrect predictions
-% dispPreds(predictions, test_labels, test_images);
+dispPreds(predictions, test_labels, test_images);
 
 % Save the trained SVM model to a .mat file
-save('modelSVM.mat', 'modelSVM');
+save('saved-models/modelSVMHOG.mat', 'modelSVM');

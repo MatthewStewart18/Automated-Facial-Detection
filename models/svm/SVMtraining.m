@@ -3,8 +3,8 @@ function model = SVMtraining(images, labels, params)
     if nargin < 3
         params.lambda = 1e-20;         % Regularization parameter
         params.C = Inf;                % Trade-off parameter for SVM
-        params.kerneloption = 5;       % Kernel-specific parameter (e.g., Gaussian width)
-        params.kernel = 'gaussian';    % Type of kernel (e.g. 'poly', 'gaussian')
+        params.kerneloption = 4;       % Kernel-specific parameter (e.g., Gaussian width)
+        params.kernel = 'poly';    % Type of kernel (e.g. 'poly', 'gaussian')
     end
 
     % Use default parameters for missing fields
@@ -15,10 +15,10 @@ function model = SVMtraining(images, labels, params)
         params.C = Inf;
     end
     if ~isfield(params, 'kerneloption')
-        params.kerneloption = 5;
+        params.kerneloption = 4;
     end
     if ~isfield(params, 'kernel')
-        params.kernel = 'gaussian';
+        params.kernel = 'poly';
     end
 
     %binary classification
