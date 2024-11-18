@@ -7,16 +7,16 @@ addpath ../../detection-images
 addpath ../../utils
 
 % Load the trained SVM model
-load('modelSVMEdges.mat', 'modelSVM');
+load('../svm/saved-models/modelSVMEdges.mat', 'modelSVM');
 
 % Parameters for sliding window
 window_size = [27, 18];
 step_size = 4;
 scales = [1, 0.95, 0.9, 0.85, 0.8, 0.75, 0.7];
-confidence_threshold = 0.65; % Minimum confidence for detections
+confidence_threshold = 0.7; % Minimum confidence for detections
 
 % Loop over each test image
-for img_num = 2:2
+for img_num = 4:4
     img_name = sprintf('im%d.jpg', img_num);
     img = imread(img_name);
     detections = [];
@@ -30,7 +30,7 @@ for img_num = 2:2
             for x = 1:step_size:resized_width - window_size(2)
                 window = resized_img(y:y+window_size(1)-1, x:x+window_size(2)-1);
                 window_vector = reshape(window, 1, []);
-                window_edges = extractEdges(window_vector, scaled_window_size);
+                window_edges = extractEdges(window_vector);
                 
                 % Get both label and confidence
                 [is_face, confidence] = extractPredictionsSVM(window_edges, modelSVM);

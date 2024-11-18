@@ -13,13 +13,15 @@ addpath ../../preprocessing-utils
 [test_images, test_labels] = loadFaceImages('../../images/face_test.cdataset');
 fprintf('Loaded training set: %d images\n', size(train_images,1));
 
-% Choose the feature extraction and pre-processing methods
+% Choose the feature extraction type
 featureExtractorFunc = @extractEdges;
-preprocessingFunc = @histEq;
 
-% pre-process images
-train_images = preProcess(train_images, preprocessingFunc);
-test_images = preProcess(test_images, preprocessingFunc);
+% reduce noise in images
+% train_images = preProcess(train_images, @medianFilter, 2);
+% test_images = preProcess(test_images, @medianFilter, 2);
+% apply histogram equalisation
+train_images = preProcess(train_images, @histEq);
+test_images = preProcess(test_images, @histEq);
 
 % Extract features from training images
 training_edges = featureExtraction(train_images, featureExtractorFunc);
