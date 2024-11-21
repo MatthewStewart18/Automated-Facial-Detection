@@ -17,23 +17,25 @@ addpath ../../preprocessing-utils
 
 % Set current model and feature configurations
 modelType = ModelType.SVM;
-featureType = FeatureType.RawPix;
+featureType = FeatureType.Edges;
+preprocessingType = PreprocessingType.HistEq;
 
 % Define model parameters
 switch modelType
     case ModelType.SVM
-        params = struct('kerneloption', 8, 'kernel', 'polyhomog');
+        params = struct('kerneloption', 3.85, 'kernel', 'polyhomog');
     case ModelType.KNN
         params = struct('K', 5);
+    case ModelType.LG
+        params = {};
+        train_labels(train_labels == -1) = 0;
+        test_labels(test_labels == -1) = 0;
     otherwise
         error('Unsupported ModelType');
 end
 
 % Create the model object
-model = ModelFactory(modelType, featureType, params);
-
-% Add preprocessing steps
-model = model.addPreprocessingStep(@histEq);
+model = ModelFactory(modelType, featureType, preprocessingType, params);
 
 % Train the model
 model = model.train(train_images, train_labels);
@@ -45,5 +47,6 @@ predictions = model.test(test_images);
 model.evaluate(predictions, test_labels, test_images);
 
 % Save the trained model
-savePath = sprintf('saved-models/%s_%s_Model.mat', char(modelType), char(featureType));
+savePath = sprintf('saved-models/%s/%s_%s_Model.mat', ...
+    char(modelType), char(featureType), char(preprocessingType));
 save(savePath, 'model');

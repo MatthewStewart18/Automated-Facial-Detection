@@ -1,5 +1,5 @@
 classdef ModelType
     enumeration
-        SVM, KNN, RandomForest, LogisticRegression
+        SVM, KNN, LG, RF
     end
 end

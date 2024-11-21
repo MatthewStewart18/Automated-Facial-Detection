@@ -1,8 +1,9 @@
 classdef ModelFactory
     properties
         Model                % Trained model
-        ModelType            % Enum for model type (e.g., SVM, KNN)
-        FeatureType          % Enum for feature extraction type
+        ModelType            % Enum for model
+        FeatureType          % Enum for feature extraction
+        PreprocessingType    % Enum for preprocessing
         PreprocessingSteps   % Preprocessing steps
         FeatureExtractors    % Feature extraction steps
         Params               % Model parameters
@@ -12,10 +13,11 @@ classdef ModelFactory
     
     methods
         % Constructor
-        function obj = ModelFactory(modelType, featureType, params)
+        function obj = ModelFactory(modelType, featureType, preprocessingType, params)
             obj.ModelType = modelType;
             obj.FeatureType = featureType;
             obj.Params = params;
+            obj.PreprocessingType = preprocessingType;
             obj.FeatureExtractors = {};
             obj.PreprocessingSteps = {};
             
@@ -27,6 +29,9 @@ classdef ModelFactory
                 case ModelType.KNN
                     obj.TrainingFunction = @KNNtraining;
                     obj.PredictionFunction = @KNNTesting;
+                case ModelType.LG
+                    obj.TrainingFunction = @fitglm;
+                    obj.PredictionFunction = @predict;
                 otherwise
                     error('Unsupported ModelType');
             end
@@ -55,6 +60,19 @@ classdef ModelFactory
                 otherwise
                     error('Unsupported FeatureType');
             end
+
+            % Map Preprocessing to Preprocessing Pipeline
+            switch preprocessingType
+                case PreprocessingType.None
+                    pre = struct('Function', {}, 'Args', {});
+                    obj.PreprocessingSteps{end + 1} = pre;
+                case PreprocessingType.HistEq
+                    pre = struct('Function', @histEq);
+                    pre.Args = {};
+                    obj.PreprocessingSteps{end + 1} = pre;
+                otherwise
+                    error('Unsupported FeatureType');
+            end
         end
         
         % Add preprocessing step
@@ -64,10 +82,12 @@ classdef ModelFactory
         
         % Apply preprocessing step
         function images = applyPreprocessing(obj, images)
-            for step = obj.PreprocessingSteps
-                func = step{1}.Function;
-                args = step{1}.Args;
-                images = preProcess(images, func, args{:});
+            if obj.PreprocessingType ~= PreprocessingType.None
+                for step = obj.PreprocessingSteps
+                    func = step{1}.Function;
+                    args = step{1}.Args;
+                    images = preProcess(images, func, args{:});
+                end
             end
         end
         
@@ -99,7 +119,11 @@ classdef ModelFactory
             features = obj.applyFeatureExtraction(trainImages);
             
             % Train the model using the specified training function
-            obj.Model = obj.TrainingFunction(features, trainLabels, obj.Params);
+            if isempty(obj.Params)
+                obj.Model = obj.TrainingFunction(features, trainLabels);
+            else
+                obj.Model = obj.TrainingFunction(features, trainLabels, obj.Params);
+            end
         end
         
         % Test the model
@@ -111,7 +135,12 @@ classdef ModelFactory
             testFeatures = obj.applyFeatureExtraction(testImages);
             
             % Make predictions using the specified prediction function
-            predictions = obj.PredictionFunction(testFeatures, obj.Model);
+            if obj.ModelType == ModelType.LG 
+                predictions = obj.PredictionFunction(obj.Model, testFeatures);
+                predictions = double(predictions >= 0.5);
+            else
+                predictions = obj.PredictionFunction(testFeatures, obj.Model);
+            end
         end
         
         % Evaluate the model
