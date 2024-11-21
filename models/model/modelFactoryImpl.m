@@ -18,14 +18,14 @@ addpath ../../preprocessing-utils
 % Set current model and feature configurations
 modelType = ModelType.SVM;
 featureType = FeatureType.Edges;
-preprocessingType = PreprocessingType.HistEq;
+preprocessingType = PreprocessingType.None;
 
 % Define model parameters
 switch modelType
     case ModelType.SVM
         params = struct('kerneloption', 3.85, 'kernel', 'polyhomog');
     case ModelType.KNN
-        params = struct('K', 5);
+        params = struct('K', round(sqrt(size(train_labels, 1))));
     case ModelType.LG
         params = {};
         train_labels(train_labels == -1) = 0;
