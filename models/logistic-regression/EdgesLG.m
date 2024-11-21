@@ -14,21 +14,13 @@ numTestImages = size(testingImages, 1);
 
 %converting -1 to 0
 trainingLabels(trainingLabels == -1) = 0;
-
 testingLabels(testingLabels == -1) = 0;
-
-options = statset('glmfit');
-options.MaxIter = 500;
 
 % define mask
 training_edges = extractEdges(trainingImages);
 
 % Fit logistic regression model
-mdl = fitglm(training_edges, trainingLabels, 'linear','Distribution', 'binomial','Options', options,'LikelihoodPenalty', 'jeffreys-prior');
-
-% Display the model summary
-disp(mdl);
-
+mdl = fitglm(training_edges, trainingLabels, 'Distribution', 'binomial');
 
 % Extract test edges
 test_edges = extractEdges(testingImages);
@@ -37,17 +29,13 @@ test_edges = extractEdges(testingImages);
 predictedProbabilities = predict(mdl, test_edges);
 
 % Convert probabilities to binary labels using a threshold of 0.5
-predictedLabels = predictedProbabilities >= 0.5;
+predictedLabels = double(predictedProbabilities >= 0.5);
 
-% Display the predicted labels
-disp(predictedLabels);
-
-%converting 0 to -1
+% Reset the predicted labels
 predictedLabels(predictedLabels == 0) = -1;
 testingLabels(testingLabels == 0) = -1;
 
 fprintf('Evaluating model predictions...\n');
 [accuracy, precision, recall, f1_score, confusionMatrix] = calculateMetrics(predictedLabels, testingLabels);
-
 
 createRatioBarChartSVM(confusionMatrix, "Raw Pixel Logistic-Regression", accuracy, precision, recall,f1_score)

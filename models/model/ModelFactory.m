@@ -33,17 +33,24 @@ classdef ModelFactory
             
             % Map FeatureType to Feature Extraction Pipeline
             switch featureType
+                case FeatureType.RawPix
+                    extractor = struct('Function', {}, 'Args', {});
+                    obj.FeatureExtractors{end + 1} = extractor;
                 case FeatureType.Edges
                     extractor = struct('Function', @extractEdges);
                     extractor.Args = {};
                     obj.FeatureExtractors{end + 1} = extractor;
-                case FeatureType.Gabor
+                case FeatureType.GaborPCA
                     extractor = struct('Function', @extractGabor);
                     extractor.Args = {};
                     obj.FeatureExtractors{end + 1} = extractor;
+                case FeatureType.HOG
+                    extractor = struct('Function', @extractHog);
+                    extractor.Args = {};
+                    obj.FeatureExtractors{end + 1} = extractor;
                 case FeatureType.PCA
-                    extractor = struct('Function', @extractPcaExplainedVar);
-                    extractor.Args = {0.95};
+                    extractor = struct('Function', @extractPcaDim);
+                    extractor.Args = {150};
                     obj.FeatureExtractors{end + 1} = extractor;
                 otherwise
                     error('Unsupported FeatureType');
@@ -74,10 +81,12 @@ classdef ModelFactory
             features = images;  % Start with raw images
             
             % Apply all feature extraction functions in sequence
-            for fe = obj.FeatureExtractors
-                func = fe{1}.Function;
-                args = fe{1}.Args;
-                features = featureExtraction(features, func, args{:});
+            if obj.FeatureType ~= FeatureType.RawPix
+                for fe = obj.FeatureExtractors
+                    func = fe{1}.Function;
+                    args = fe{1}.Args;
+                    features = featureExtraction(features, func, args{:});
+                end
             end
         end
         

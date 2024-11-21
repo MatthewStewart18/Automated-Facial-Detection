@@ -11,23 +11,16 @@ numTestImages = size(testingImages, 1);
 
 %converting -1 to 0
 trainingLabels(trainingLabels == -1) = 0;
-
 testingLabels(testingLabels == -1) = 0;
 
-options = statset('glmfit');
-options.MaxIter = 500;
-
 % Fit logistic regression model
-mdl = fitglm(trainingImages, trainingLabels, 'linear','Distribution', 'binomial','Options', options,'LikelihoodPenalty', 'jeffreys-prior');
-
-% Display the model summary
-disp(mdl);
+mdl = fitglm(trainingImages, trainingLabels,'Distribution', 'binomial');
 
 % Predict probabilities for the test data
 predictedProbabilities = predict(mdl, testingImages);
 
 % Convert probabilities to binary labels using a threshold of 0.5
-predictedLabels = predictedProbabilities >= 0.5;
+predictedLabels = double(predictedProbabilities >= 0.5);
 
 % Display the predicted labels
 disp(predictedLabels);

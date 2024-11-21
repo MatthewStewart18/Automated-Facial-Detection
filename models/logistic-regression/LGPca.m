@@ -49,7 +49,7 @@ mdl = fitglm(trainingFeatureSet, trainingLabels, 'Distribution', 'binomial');
 predictedProbabilities = predict(mdl, testingFeatureSet);
 
 % Convert probabilities to binary labels using a threshold of 0.5
-predictedLabels = predictedProbabilities >= 0.5;
+predictedLabels = double(predictedProbabilities >= 0.5);
 
 %converting 0 to -1
 predictedLabels(predictedLabels == 0) = -1;

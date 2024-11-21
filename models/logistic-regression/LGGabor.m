@@ -51,7 +51,7 @@ mdl = fitglm(featureMatrixTraining, trainingLabels, 'Distribution', 'binomial');
 predictedProbabilities = predict(mdl, featureMatrixTest);
 
 % Convert probabilities to binary labels using a threshold of 0.5
-predictedLabels = predictedProbabilities >= 0.5;
+predictedLabels = double(predictedProbabilities >= 0.5);
 
 % Display the predicted labels
 disp(predictedLabels);
