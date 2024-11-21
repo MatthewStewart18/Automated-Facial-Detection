@@ -5,18 +5,19 @@ addpath ../svm/SVM-KM
 addpath ../svm/saved-models
 addpath ../../detection-images
 addpath ../../utils
+addpath ../../feature-extraction-utils/feature-extractors
 
 % Load the trained SVM model
 load('../svm/saved-models/modelSVMEdges.mat', 'modelSVM');
 
 % Parameters for sliding window
 window_size = [27, 18];
-step_size = 4;
+step_size = 1;
 scales = [1, 0.95, 0.9, 0.85, 0.8, 0.75, 0.7];
 confidence_threshold = 0.7; % Minimum confidence for detections
 
 % Loop over each test image
-for img_num = 4:4
+for img_num = 1:1
     img_name = sprintf('im%d.jpg', img_num);
     img = imread(img_name);
     detections = [];
