@@ -1,22 +1,52 @@
 classdef ModelFactory
     properties
-        Model                 % Trained model (SVM, k-NN, etc.)
-        PreprocessingSteps    % Cell array of preprocessing steps
-        FeatureExtractors     % Cell array of feature extraction steps (functions + arguments)
-        TrainingFunction      % Handle to model training function
-        PredictionFunction    % Handle to prediction function
-        Params                % Parameters for the training function
+        Model                % Trained model
+        ModelType            % Enum for model type (e.g., SVM, KNN)
+        FeatureType          % Enum for feature extraction type
+        PreprocessingSteps   % Preprocessing steps
+        FeatureExtractors    % Feature extraction steps
+        Params               % Model parameters
+        TrainingFunction     % Training function
+        PredictionFunction   % Prediction function
     end
     
     methods
         % Constructor
-        function obj = ModelFactory(trainingFunc, predictionFunc, params)
-            if nargin > 0
-                obj.TrainingFunction = trainingFunc;
-                obj.PredictionFunction = predictionFunc;
-                obj.Params = params;
-                obj.FeatureExtractors = {};  
-                obj.PreprocessingSteps = {};
+        function obj = ModelFactory(modelType, featureType, params)
+            obj.ModelType = modelType;
+            obj.FeatureType = featureType;
+            obj.Params = params;
+            obj.FeatureExtractors = {};
+            obj.PreprocessingSteps = {};
+            
+            % Map ModelType to Training and Prediction Functions
+            switch modelType
+                case ModelType.SVM
+                    obj.TrainingFunction = @SVMtraining;
+                    obj.PredictionFunction = @extractPredictionsSVM;
+                case ModelType.KNN
+                    obj.TrainingFunction = @KNNtraining;
+                    obj.PredictionFunction = @KNNTesting;
+                otherwise
+                    error('Unsupported ModelType');
+            end
+            
+            % Map FeatureType to Feature Extraction Pipeline
+            switch featureType
+                case FeatureType.Edges
+                    extractor = struct('Function', @extractEdges);
+                    extractor.Args = {};
+                    obj.FeatureExtractors{end + 1} = extractor;
+                case FeatureType.Gabor
+                    extractor = struct('Function', @extractGabor);
+                    extractor.Args = {};
+                    obj.FeatureExtractors{end + 1} = extractor;
+                case FeatureType.PCA
+                    extractor = struct('Function', @extractPcaExplainedVar);
+                    extractor.Args = {0.95};
+                    obj.FeatureExtractors{end + 1} = extractor;
+                otherwise
+                    error('Unsupported FeatureType');
             end
         end
         
