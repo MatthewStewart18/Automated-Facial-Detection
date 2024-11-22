@@ -16,14 +16,14 @@ addpath ../../preprocessing-utils
 [test_images, test_labels] = loadFaceImages('../../images/face_test.cdataset');
 
 % Set current model and feature configurations
-modelType = ModelType.SVM;
-featureType = FeatureType.Edges;
-preprocessingType = PreprocessingType.None;
+modelType = ModelType.KNN;
+featureType = FeatureType.GaborPCA;
+preprocessingType = PreprocessingType.HistEq;
 
 % Define model parameters
 switch modelType
     case ModelType.SVM
-        params = struct('kerneloption', 3.85, 'kernel', 'polyhomog');
+        params = struct('kerneloption', 2, 'kernel', 'polyhomog');
     case ModelType.KNN
         params = struct('K', round(sqrt(size(train_labels, 1))));
     case ModelType.LG
