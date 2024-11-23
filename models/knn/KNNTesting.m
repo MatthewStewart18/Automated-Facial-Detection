@@ -2,8 +2,7 @@ function predictions = KNNTesting(testImages, modelKNN)
     % Initialize the array to store predictions
     numImages = size(testImages, 1); % Assume each row is an image
     predictions = zeros(numImages, 1); % Preallocate predictions array
-    % K = extractfield(modelKNN.K, 'K');
-    K = 5;
+    K = extractfield(modelKNN.K, 'K');
     
     % Iterate through each test image
     for i = 1:numImages
@@ -14,4 +13,5 @@ function predictions = KNNTesting(testImages, modelKNN)
         kNearestLabels = modelKNN.labels(kNearestIndices);
         predictions(i) = mode(kNearestLabels); % Store prediction
     end
+    predictions = predictions(1);
 end
