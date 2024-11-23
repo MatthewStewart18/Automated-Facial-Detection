@@ -73,7 +73,7 @@ classdef ModelFactory
                     error('Unsupported FeatureType');
             end
 
-            % Map Preprocessing to Preprocessing Pipeline
+            % Map PreprocessingType to Preprocessing Pipeline
             switch preprocessingType
                 case PreprocessingType.None
                     pre = struct('Function', {}, 'Args', {});
@@ -87,12 +87,12 @@ classdef ModelFactory
             end
         end
         
-        % Add preprocessing step
+        % Add a preprocessing step
         function obj = addPreprocessingStep(obj, func, varargin)
             obj.PreprocessingSteps{end + 1} = struct('Function', func, 'Args', {varargin});
         end
         
-        % Apply preprocessing step
+        % Apply all preprocessing steps in sequential order
         function images = applyPreprocessing(obj, images)
             if obj.PreprocessingType ~= PreprocessingType.None
                 for step = obj.PreprocessingSteps
@@ -103,7 +103,7 @@ classdef ModelFactory
             end
         end
         
-        % Add feature extraction step
+        % Add a feature extraction step
         function obj = addFeatureExtractionStep(obj, func, varargin)
             obj.FeatureExtractors{end + 1} = struct('Function', func, 'Args', {varargin});
         end
@@ -112,14 +112,15 @@ classdef ModelFactory
         function [features, obj] = applyFeatureExtraction(obj, images, isTraining)
             features = images;  
            
-            % Apply all feature extraction functions in sequence
+            % Apply all feature extraction functions in sequential order
             if obj.FeatureType ~= FeatureType.RawPix
                 for fe = obj.FeatureExtractors
                     func = fe{1}.Function;
                     args = fe{1}.Args;
                     
+                    % Special case for PCA, ensuring test set is projected
+                    % to same vector space as training set
                     if isequal(func, @extractPca)
-                        % Special case for PCA
                         if isTraining
                             [eigenVectors, ~, meanX, Xpca] = func(features, args{:});
                             obj.PCAParameters.eigenVectors = eigenVectors;
@@ -133,6 +134,9 @@ classdef ModelFactory
                             eigenVectors = obj.PCAParameters.eigenVectors;
                             features = (features - meanX)*eigenVectors;
                         end
+                        
+                    % Apply same feature extraction for test and training 
+                    % if not pca 
                     else
                         features = featureExtraction(features, func, args{:});
                     end
