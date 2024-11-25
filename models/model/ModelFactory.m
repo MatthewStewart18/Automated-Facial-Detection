@@ -9,12 +9,13 @@ classdef ModelFactory
         Params               % Model parameters
         TrainingFunction     % Training function
         PredictionFunction   % Prediction function
-        PCAParameters        % Struct to store PCA parameters (eigenVectors, meanX)
+        PCAParameters        % Struct to store PCA parameters later (eigenVectors, meanX)
+        RFNumTrees           % Num of trees for RF model (optional param)
     end
     
     methods
         % Constructor
-        function obj = ModelFactory(modelType, featureType, preprocessingType, params)
+        function obj = ModelFactory(modelType, featureType, preprocessingType, params, RFnumTrees)
             obj.ModelType = modelType;
             obj.FeatureType = featureType;
             obj.Params = params;
@@ -22,6 +23,11 @@ classdef ModelFactory
             obj.FeatureExtractors = {};
             obj.PreprocessingSteps = {};
             obj.PCAParameters = struct();
+            if nargin < 5
+                obj.RFNumTrees = 0;
+            else 
+                obj.RFNumTrees = RFnumTrees;
+            end
             
             % Map ModelType to Training and Prediction Functions
             switch modelType
@@ -33,6 +39,9 @@ classdef ModelFactory
                     obj.PredictionFunction = @KNNTesting;
                 case ModelType.LG
                     obj.TrainingFunction = @fitglm;
+                    obj.PredictionFunction = @predict;
+                case ModelType.RF
+                    obj.TrainingFunction = @TreeBagger;
                     obj.PredictionFunction = @predict;
                 otherwise
                     error('Unsupported ModelType');
@@ -157,7 +166,9 @@ classdef ModelFactory
             [features, obj] = obj.applyFeatureExtraction(trainImages, true);
             
             % Train the model using the specified training function
-            if isempty(obj.Params)
+            if obj.ModelType == ModelType.RF
+                obj.Model = obj.TrainingFunction(obj.RFNumTrees, features, trainLabels);
+            elseif isempty(obj.Params)
                 obj.Model = obj.TrainingFunction(features, trainLabels);
             else
                 obj.Model = obj.TrainingFunction(features, trainLabels, obj.Params);
@@ -176,10 +187,13 @@ classdef ModelFactory
             defaultConfidence = 1;
             
             % Make predictions using the specified prediction function
-            if obj.ModelType == ModelType.LG 
+            if obj.ModelType == ModelType.LG  
                 predictions = obj.PredictionFunction(obj.Model, testFeatures);
                 confidence = double(predictions);
                 predictions = double(predictions >= 0.5);
+            elseif obj.ModelType == ModelType.RF
+                [predictions, confidence, ~] = obj.PredictionFunction(obj.Model, testFeatures);
+                predictions = str2double(predictions);
             else
                 if nargout(obj.PredictionFunction) > 1
                     [predictions, confidence] = obj.PredictionFunction(testFeatures, obj.Model);
@@ -191,9 +205,9 @@ classdef ModelFactory
         end
         
         % Evaluate the model
-        function evaluate(~, predictions, testLabels, testImages)
+        function [accuracy, confusion_matrix] = evaluate(~, predictions, testLabels, testImages)
             fprintf('Evaluating model predictions...\n');
-            [~] = calculateMetrics(predictions, testLabels);
+            [accuracy, ~, ~, ~, confusion_matrix] = calculateMetrics(predictions, testLabels);
             dispPreds(predictions, testLabels, testImages);
         end
     end
