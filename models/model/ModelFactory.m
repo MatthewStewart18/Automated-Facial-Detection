@@ -69,6 +69,10 @@ classdef ModelFactory
                     extractor = struct('Function', @extractPca);
                     extractor.Args = {};
                     obj.FeatureExtractors{end + 1} = extractor;
+                case FeatureType.LBP
+                    extractor = struct('Function', @extractLBP);
+                    extractor.Args = {};
+                    obj.FeatureExtractors{end + 1} = extractor;
                 otherwise
                     error('Unsupported FeatureType');
             end
