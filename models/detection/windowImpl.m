@@ -14,8 +14,8 @@ addpath ../../feature-extraction-utils
 addpath ../../feature-extraction-utils/feature-extractors
 
 % Set current Model
-modelType = ModelType.SVM;
-featureType = FeatureType.EdgesPCA;
+modelType = ModelType.RF;
+featureType = FeatureType.PCA;
 preprocessingType = PreprocessingType.None;
 
 % Load Model

@@ -82,6 +82,13 @@ classdef ModelFactory
                     extractor = struct('Function', @extractLBP);
                     extractor.Args = {};
                     obj.FeatureExtractors{end + 1} = extractor;
+                case FeatureType.EdgesCon
+                    extractor = struct('Function', @extractEdgesContinuous);
+                    extractor.Args = {};
+                    obj.FeatureExtractors{end + 1} = extractor;
+                    extractor = struct('Function', @extractPca);
+                    extractor.Args = {};
+                    obj.FeatureExtractors{end + 1} = extractor;
                 otherwise
                     error('Unsupported FeatureType');
             end
@@ -92,6 +99,28 @@ classdef ModelFactory
                     pre = struct('Function', {}, 'Args', {});
                     obj.PreprocessingSteps{end + 1} = pre;
                 case PreprocessingType.HistEq
+                    pre = struct('Function', @histEq);
+                    pre.Args = {};
+                    obj.PreprocessingSteps{end + 1} = pre;
+                case PreprocessingType.Mean
+                    pre = struct('Function', @meanFilter);
+                    pre.Args = {};
+                    obj.PreprocessingSteps{end + 1} = pre;
+                case PreprocessingType.Median
+                    pre = struct('Function', @medianFilter);
+                    pre.Args = {};
+                    obj.PreprocessingSteps{end + 1} = pre;
+                case PreprocessingType.MeanHE
+                    pre = struct('Function', @meanFilter);
+                    pre.Args = {};
+                    obj.PreprocessingSteps{end + 1} = pre;
+                    pre = struct('Function', @histEq);
+                    pre.Args = {};
+                    obj.PreprocessingSteps{end + 1} = pre;
+                case PreprocessingType.MedianHE
+                    pre = struct('Function', @medianFilter);
+                    pre.Args = {};
+                    obj.PreprocessingSteps{end + 1} = pre;
                     pre = struct('Function', @histEq);
                     pre.Args = {};
                     obj.PreprocessingSteps{end + 1} = pre;
