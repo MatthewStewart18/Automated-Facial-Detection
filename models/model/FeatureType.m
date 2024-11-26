@@ -1,5 +1,5 @@
 classdef FeatureType
     enumeration
-        RawPix, PCA, Edges, EdgesPCA, GaborPCA, HOG, LBP
+        RawPix, PCA, Edges, EdgesPCA, GaborPCA, HOG, LBP, EdgesCon
     end
 end

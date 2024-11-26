@@ -1,5 +1,5 @@
 classdef PreprocessingType
     enumeration
-        None, HistEq
+        None, HistEq, Median, Mean, MeanHE, MedianHE
     end
 end
