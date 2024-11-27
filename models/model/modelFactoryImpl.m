@@ -16,9 +16,9 @@ addpath ../../preprocessing-utils
 [test_images, test_labels] = loadFaceImages('../../images/face_test.cdataset');
 
 % Set current model and feature configurations
-modelType = ModelType.KNN;
-featureType = FeatureType.RawPix;
-preprocessingType = PreprocessingType.None;
+modelType = ModelType.LG;
+featureType = FeatureType.HOG;
+preprocessingType = PreprocessingType.HistEq;
 
 % Define model parameters
 switch modelType

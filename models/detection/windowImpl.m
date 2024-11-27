@@ -14,8 +14,8 @@ addpath ../../feature-extraction-utils
 addpath ../../feature-extraction-utils/feature-extractors
 
 % Set current Model
-modelType = ModelType.KNN;
-featureType = FeatureType.PCA;
+modelType = ModelType.LG;
+featureType = FeatureType.HOG;
 preprocessingType = PreprocessingType.HistEq;
 
 % Load Model
