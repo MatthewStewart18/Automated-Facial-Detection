@@ -16,7 +16,7 @@ featureFunc2 = @extractPca;
 featureArgs = {};
 
 % Extract features
-train_images = preProcess(train_images, @meanFilter, 2);
+train_images = preProcess(train_images, @medianFilter, 2);
 train_images = preProcess(train_images, @histEq);
 features = featureExtraction(train_images, featureFunc);
 % features = featureExtraction(features, featureFunc2);
