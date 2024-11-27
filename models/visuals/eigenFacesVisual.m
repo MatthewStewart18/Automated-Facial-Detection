@@ -23,7 +23,7 @@ end
 
 % Apply feature extraction
 % train_images = histEq(train_images);
-% train_images = extractHog(train_images);
+train_images = extractGabor(train_images);
 
 % Apply PCA
 [eigenVectors, eigenvalues, meanX, Xpca] = extractPca(train_images, 15);

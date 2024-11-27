@@ -16,14 +16,14 @@ addpath ../../preprocessing-utils
 [test_images, test_labels] = loadFaceImages('../../images/face_test.cdataset');
 
 % Set current model and feature configurations
-modelType = ModelType.SVM;
-featureType = FeatureType.EdgesCon;
-preprocessingType = PreprocessingType.MedianHE;
+modelType = ModelType.KNN;
+featureType = FeatureType.RawPix;
+preprocessingType = PreprocessingType.None;
 
 % Define model parameters
 switch modelType
     case ModelType.SVM
-        params = struct('kerneloption', 2, 'kernel', 'poly');
+        params = struct('kerneloption', 4, 'kernel', 'poly');
     case ModelType.KNN
         params = struct('K', round(sqrt(size(train_labels, 1))));
     case ModelType.LG
@@ -53,7 +53,15 @@ model = model.train(train_images, train_labels);
 % Evaluate the model
 [~, ~] = model.evaluate(predictions, test_labels, test_images);
 
+% Plot ROC curve
+if modelType == ModelType.RF
+    rocCurve(test_labels, confidence(:, 2));
+else 
+    rocCurve(test_labels, confidence);
+end
+
 % Save the trained model
 savePath = sprintf('saved-models/%s/%s_%s_Model.mat', ...
     char(modelType), char(featureType), char(preprocessingType));
-save(savePath, 'model');
+
+% save(savePath, 'model');

@@ -14,9 +14,9 @@ addpath ../../feature-extraction-utils
 addpath ../../feature-extraction-utils/feature-extractors
 
 % Set current Model
-modelType = ModelType.RF;
+modelType = ModelType.KNN;
 featureType = FeatureType.PCA;
-preprocessingType = PreprocessingType.None;
+preprocessingType = PreprocessingType.HistEq;
 
 % Load Model
 path = sprintf('../model/saved-models/%s/%s_%s_Model.mat', ...
