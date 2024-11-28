@@ -37,6 +37,9 @@ function [predictions, windowPositions] = window(image, windowSize, stepSize, mo
 
         % Store predictions and window positions
         index = index + 1;
+        if numel(confidence) == 2 % Check if confidence has two elements
+            confidence = max(confidence); % Take the greater value
+        end
         predictions(index, :) = [prediction, confidence];
         windowPositions(index, :) = [currentCol, currentRow];
         end
