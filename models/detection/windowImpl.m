@@ -65,7 +65,7 @@ detections = simpleNMS(bbox, NMSThreshold);
 figure;
 subplot(1,2,1);
 coords_path = sprintf('ground_truth/annotations/%s.txt', currentImage);
-visualizeResults(testImage, detections, coords_path);
+visualiseResults(testImage, detections, coords_path);
 % show final results
 subplot(1,2,2);
 ShowDetectionResult(testImage, detections);

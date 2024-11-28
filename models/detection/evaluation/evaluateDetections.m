@@ -1,4 +1,4 @@
-function [precision, recall, cumtp, cumfp] = evaluateDetections(detections, groundTruth, iouThreshold)
+function [accuracy, precision, recall, cumtp, cumfp, fn] = evaluateDetections(detections, groundTruth, iouThreshold)
     [~, sortIdx] = sort(detections(:,5), 'descend');
     detections = detections(sortIdx,:);
     
@@ -31,8 +31,10 @@ function [precision, recall, cumtp, cumfp] = evaluateDetections(detections, grou
         end
     end
     
+    fn = sum(~gtMatched);
     cumtp = cumsum(tp);
     cumfp = cumsum(fp);
     precision = cumtp ./ (cumtp + cumfp);
     recall = cumtp / numGroundTruths;
+    accuracy = cumtp(end) / (cumtp(end) + cumfp(end) + fn);
 end
