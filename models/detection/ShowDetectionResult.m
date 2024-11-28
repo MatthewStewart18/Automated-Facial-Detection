@@ -1,7 +1,8 @@
 function ShowDetectionResult(Picture, bboxs)
 
 % Show the picture
-figure, imshow(Picture),hold on;
+imshow(Picture);
+hold on;
 
 % Define color coding for confidence levels
 colours = ['b'; 'c'; 'm'; 'y'];
@@ -39,7 +40,7 @@ if ~isempty(bboxs)
             'EdgeColor', 'black');
     end
 end
-
+title('Detection Results')
 hold off;
 
 end
