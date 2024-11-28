@@ -1,4 +1,4 @@
-function visualizeResults(testImage, detections, groundTruthPath)
+function visualiseResults(testImage, detections, groundTruthPath)
 % Read ground truth
 gt_file = fopen(groundTruthPath, 'r');
 gt_data = textscan(gt_file, '%d %d %d %d', 'CommentStyle', '#');

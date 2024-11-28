@@ -1,5 +1,10 @@
 function [output_images] = meanFilter(images, N)
     output_images = zeros(size(images, 1), 27*18);
+
+    if nargin < 2
+        N = 2;
+    end
+
     B = ones(N, N) / (N^2); %averaging filter
 
     for i = 1:size(images, 1)

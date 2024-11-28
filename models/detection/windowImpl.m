@@ -16,9 +16,9 @@ addpath ../../feature-extraction-utils
 addpath ../../feature-extraction-utils/feature-extractors
 
 % Set current Model
-modelType = ModelType.SVM;
-featureType = FeatureType.EdgesPCA;
-preprocessingType = PreprocessingType.None;
+modelType = ModelType.LG;
+featureType = FeatureType.HOG;
+preprocessingType = PreprocessingType.HistEq;
 
 % Load Model
 path = sprintf('../model/saved-models/%s/%s_%s_Model.mat', ...
