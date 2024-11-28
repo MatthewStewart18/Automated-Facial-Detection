@@ -2,6 +2,8 @@ clear all;
 close all;
 
 % Add required directories to path
+addpath ground_truth/annotations
+addpath evaluation
 addpath ../svm
 addpath ../svm/SVM-KM
 addpath ../knn
@@ -26,12 +28,17 @@ load(path, 'model');
 % Load image
 currentImage = 'im1';
 testImage = imread(sprintf('../../detection-images/%s.jpg', currentImage));
+image_path = '../../detection-images/im1.jpg';
 
 % Sliding window parameters
 windowSize = [27, 18];
 stepSize = [1, 1];    
 confidenceThreshold = 0.7;
 NMSThreshold = 0.05;
+
+% if ~exist('ground-truth/annotations/im1.txt', 'file')
+%     createGroundTruthAnnotations(image_path, 'ground_truth/annotations/im1.txt');
+% end
 
 % Run sliding window
 [predictions, windowPositions] = window(testImage, windowSize, stepSize, model);
@@ -55,5 +62,10 @@ fprintf('Windows above confidence threshold (>= %.2f): %d\n', confidenceThreshol
 % Apply Non-Maximum Suppression
 detections = simpleNMS(bbox, NMSThreshold);
 
+figure;
+subplot(1,2,1);
+coords_path = sprintf('ground_truth/annotations/%s.txt', currentImage);
+visualizeResults(testImage, detections, coords_path);
 % show final results
+subplot(1,2,2);
 ShowDetectionResult(testImage, detections);

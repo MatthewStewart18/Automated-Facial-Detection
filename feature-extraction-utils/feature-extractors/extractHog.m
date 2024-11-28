@@ -109,5 +109,8 @@ function features = extractHog(images)
             end
         end
         features(img_idx, :)=feature/sqrt(norm(feature)^2+.001);
+        if img_idx == 1
+            visualizeHOG(im, 8, 16);
+        end
     end
 end
