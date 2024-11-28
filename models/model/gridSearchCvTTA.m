@@ -2,7 +2,7 @@ clear all
 close all
 
 % Add relevant files to WD
-addpath ../model
+addpath ../knn
 addpath ../../images
 addpath ../../utils
 addpath ../../feature-extraction-utils
@@ -51,11 +51,26 @@ for i = 1:length(K_values)
         model = ModelFactory(modelType, featureType, preprocessingType, params);
         model = model.train(train_images, train_labels);
         
-        % Test the model
-        [predictions, confidence] = model.test(test_images);
+        % Test the model with Test-Time Augmentation (TTA)
+        final_predictions = zeros(size(test_labels));
+        
+        % Loop over each test image
+        for img_idx = 1:size(test_images, 1)
+            % Get the current test image
+            image = test_images(img_idx, :);
+            
+            % Apply augmentations to the image
+            augmented_images = augmentData(image, test_labels(img_idx), [27, 18]);
+            
+            % Predict on augmented images
+            [predictions, ~] = model.test(augmented_images);
+            
+            % Majority voting: select the most common prediction
+            final_predictions(img_idx) = mode(predictions);
+        end
         
         % Calculate accuracy and metrics for this fold
-        [accuracy, precision, recall, f1_score, confusionMatrix] = calculateMetrics(predictions, test_labels);
+        [accuracy, precision, recall, f1_score, confusionMatrix] = calculateMetrics(final_predictions, test_labels);
         
         % Store the accuracy and other metrics
         cv_results(i, fold) = accuracy;

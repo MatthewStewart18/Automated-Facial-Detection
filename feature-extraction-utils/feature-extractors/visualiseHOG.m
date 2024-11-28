@@ -1,5 +1,5 @@
-% Function to visualize HOG features
-function visualizeHOG(image, cellSize, blockSize)
+% Function to visualise HOG features
+function visualiseHOG(image, cellSize, blockSize)
     % Reshape the image
     im = reshape(image, [27, 18]);
     
@@ -9,8 +9,8 @@ function visualizeHOG(image, cellSize, blockSize)
     angle = atan2d(Iy, Ix);
     angle = mod(angle, 180);  % Convert to 0-180 range
     
-    % Create visualization
-    figure('Name', 'HOG Visualization');
+    % Create Visualisation
+    figure('Name', 'HOG Visualisation');
     
     % Subplot 1: Original Image
     subplot(2,2,1);

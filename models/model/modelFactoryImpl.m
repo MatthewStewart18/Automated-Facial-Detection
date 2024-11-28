@@ -16,8 +16,8 @@ addpath ../../preprocessing-utils
 [test_images, test_labels] = loadFaceImages('../../images/face_test.cdataset');
 
 % Set current model and feature configurations
-modelType = ModelType.LG;
-featureType = FeatureType.HOG;
+modelType = ModelType.SVM;
+featureType = FeatureType.PCA;
 preprocessingType = PreprocessingType.HistEq;
 
 % Define model parameters
