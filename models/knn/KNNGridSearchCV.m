@@ -19,14 +19,14 @@ all_labels = [train_labels; test_labels];
 
 % Set current model and feature configurations
 modelType = ModelType.KNN;
-featureType = FeatureType.EdgesPCA;
+featureType = FeatureType.RawPix;
 preprocessingType = PreprocessingType.HistEq;
 
 % K values for KNN to hypertune
-K_values = [1, 3, 5, 7, 9, 11, 13, 15];
+K_values = 1:2:49;
 
 % Create stratified K-fold partitions on the training data
-rng(1);
+rng(45);
 Kfold = 5;
 cv = cvpartition(train_labels, 'KFold', Kfold, 'Stratify', true);
 
@@ -74,3 +74,22 @@ avg_accuracy = mean(cv_results, 2);
 best_K = K_values(best_K_idx);
 
 fprintf('Best K: %d with average accuracy: %.4f\n', best_K, avg_accuracy(best_K_idx));
+
+% Plot the average accuracy for each K value
+figure;
+plot(K_values, avg_accuracy, '-o', 'LineWidth', 2, 'MarkerSize', 8);
+xlabel('K (Number of Neighbors)');
+ylabel('Average Accuracy');
+title(sprintf('%s %s Hyperparameter Tuning', modelType, featureType));
+grid on;
+xticks(K_values);
+xlim([min(K_values), max(K_values)]);
+ylim([min(avg_accuracy)-0.01, max(avg_accuracy)+0.01]);
+
+% Annotate the best K on the graph
+hold on;
+best_k_value = K_values(best_K_idx);
+best_acc = avg_accuracy(best_K_idx);
+plot(best_k_value, best_acc, 'ro', 'MarkerSize', 10, 'LineWidth', 2);
+text(best_k_value, best_acc, sprintf(' Best K=%d, Accuracy=%.4f', best_k_value, best_acc), ...
+    'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'right');
