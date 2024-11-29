@@ -120,3 +120,5 @@ best_acc = avg_accuracy(valid_indices(best_K_idx));
 plot(best_k_value, best_acc, 'ro', 'MarkerSize', 10, 'LineWidth', 2);
 text(best_k_value, best_acc, sprintf(' Best K=%d, Accuracy=%.4f', best_k_value, best_acc), ...
     'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'right');
+
+
