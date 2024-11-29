@@ -28,7 +28,6 @@ load(path, 'model');
 % Load image
 currentImage = 'im1';
 testImage = imread(sprintf('../../detection-images/%s.jpg', currentImage));
-image_path = '../../detection-images/im1.jpg';
 
 % Sliding window parameters
 windowSize = [27, 18];
