@@ -1,4 +1,4 @@
-function visualiseResults(testImage, detections, groundTruthPath)
+function visualiseResults(testImage, detections, groundTruthPath, modelType, featureType)
     % Read ground truth
     gt_file = fopen(groundTruthPath, 'r');
     gt_data = textscan(gt_file, '%d %d %d %d', 'CommentStyle', '#');
@@ -65,6 +65,6 @@ function visualiseResults(testImage, detections, groundTruthPath)
               'BackgroundColor', 'white', ...
               'EdgeColor', 'black', ...
               'HorizontalAlignment', 'left');
-    title('Detection Results with IoU Scores');
+    title(sprintf('Detection Results with IoU Scores for %s with %s', modelType, featureType));
     hold off;
 end

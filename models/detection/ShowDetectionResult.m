@@ -1,4 +1,4 @@
-function ShowDetectionResult(Picture, bboxs)
+function ShowDetectionResult(Picture, bboxs, modelType, featureType)
 
 % Show the picture
 imshow(Picture);
@@ -40,7 +40,7 @@ if ~isempty(bboxs)
             'EdgeColor', 'black');
     end
 end
-title('Detection Results')
+title(sprintf('Detection Results for %s with %s', modelType, featureType))
 hold off;
 
 end

@@ -21,7 +21,7 @@ preprocessingType = PreprocessingType.HistEq;
 K_values = 1:2:49;
 
 % Create stratified K-fold partitions on the training data
-rng(45);
+% rng(45);
 Kfold = 5;
 cv = cvpartition(labels, 'KFold', Kfold, 'Stratify', true);
 

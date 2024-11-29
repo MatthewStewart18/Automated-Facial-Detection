@@ -16,8 +16,8 @@ addpath ../../feature-extraction-utils
 addpath ../../feature-extraction-utils/feature-extractors
 
 % Set current Model
-modelType = ModelType.LG;
-featureType = FeatureType.HOG;
+modelType = ModelType.SVM;
+featureType = FeatureType.EdgesPCA;
 preprocessingType = PreprocessingType.HistEq;
 
 % Load Model
@@ -32,15 +32,13 @@ testImage = imread(sprintf('../../detection-images/%s.jpg', currentImage));
 % Sliding window parameters
 windowSize = [27, 18];
 stepSize = [1, 1];    
-confidenceThreshold = 0.7;
+confidenceThreshold = 0.67;
 NMSThreshold = 0.05;
 
-% if ~exist('ground-truth/annotations/im1.txt', 'file')
-%     createGroundTruthAnnotations(image_path, 'ground_truth/annotations/im1.txt');
-% end
-
 % Run sliding window
+tic
 [predictions, windowPositions] = window(testImage, windowSize, stepSize, model);
+toc
 
 % Scale confidence of model predictions to [0, 1]
 predictions(:, 2) = rescale(predictions(:, 2));
@@ -64,7 +62,8 @@ detections = simpleNMS(bbox, NMSThreshold);
 figure;
 subplot(1,2,1);
 coords_path = sprintf('ground_truth/annotations/%s.txt', currentImage);
-visualiseResults(testImage, detections, coords_path);
+visualiseResults(testImage, detections, coords_path, modelType, featureType);
+
 % show final results
 subplot(1,2,2);
-ShowDetectionResult(testImage, detections);
+ShowDetectionResult(testImage, detections, modelType, featureType);

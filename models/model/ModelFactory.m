@@ -237,7 +237,7 @@ classdef ModelFactory
         function [accuracy, confusion_matrix] = evaluate(~, predictions, testLabels, testImages)
             fprintf('Evaluating model predictions...\n');
             [accuracy, ~, ~, ~, confusion_matrix] = calculateMetrics(predictions, testLabels);
-            % dispPreds(predictions, testLabels, testImages);
+            dispPreds(predictions, testLabels, testImages);
         end
     end
 end
