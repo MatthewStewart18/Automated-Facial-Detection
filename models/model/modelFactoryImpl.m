@@ -78,9 +78,3 @@ end
 
 % Plot ROC curve
 rocCurve(test_labels, final_conf);
-
-% Save the trained model
-savePath = sprintf('saved-models/%s/%s_%s_Model.mat', ...
-    char(modelType), char(featureType), char(preprocessingType));
-
-% save(savePath, 'model');
