@@ -27,11 +27,10 @@ switch modelType
     case ModelType.SVM
         params = struct('kerneloption', 2, 'kernel', 'polyhomog');
     case ModelType.KNN
-        params = struct('K', round(sqrt(size(train_labels, 1))));
+        params = struct('K', round(sqrt(size(labels, 1))));
     case ModelType.LG
         params = {};
-        train_labels(train_labels == -1) = 0;
-        test_labels(test_labels == -1) = 0;
+        labels(labels == -1) = 0;
     case ModelType.RF
         numTrees = 275;
         params = {};
@@ -62,7 +61,11 @@ for fold = 1:Kfold
 
     % Train the model
     [train_images, train_labels] = augmentData(train_images, train_labels, [27, 18]);
-    model = ModelFactory(modelType, featureType, preprocessingType, params, numTrees);
+    if modelType == ModelType.RF
+        model = ModelFactory(modelType, featureType, preprocessingType, params, numTrees);
+    else
+        model = ModelFactory(modelType, featureType, preprocessingType, params);
+    end
     model = model.train(train_images, train_labels);
 
     % Test the model with Test-Time Augmentation (TTA)
@@ -111,7 +114,6 @@ avg_f1_score = mean(metrics_results.F1);
 avg_confusion_matrix = round(mean(metrics_results.ConfusionMatrix, 1));
 
 % Display results
-fprintf('\nResults for %d Trees:\n', numTrees);
 fprintf('Average Accuracy: %.4f%%\n', avg_accuracy);
 fprintf('Precision: %.4f\n', avg_precision);
 fprintf('Recall: %.4f\n', avg_recall);
