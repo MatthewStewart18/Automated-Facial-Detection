@@ -10,7 +10,12 @@ addpath ../../feature-extraction-utils/feature-extractors
 addpath ../../preprocessing-utils
 
 % Load training data without augmentation
-[images, labels] = loadFaceImages('../../images/face_train.cdataset', -1);
+[Xtrain, Ytrain] = loadFaceImages('../../images/face_train.cdataset', -1);
+[Xtest, Ytest] = loadFaceImages('../../images/face_test.cdataset', -1);
+
+% Concatenate images vertically (rows correspond to images)
+images = [Xtrain; Xtest];
+labels = [Ytrain; Ytest];
 
 % Set current model and feature configurations
 modelType = ModelType.RF;
@@ -50,12 +55,28 @@ for i = 1:length(NumTrees_values)
         [train_images, train_labels] = augmentData(train_images, train_labels, [27, 18]);
         model = ModelFactory(modelType, featureType, preprocessingType, params, numTrees);
         model = model.train(train_images, train_labels);
+
+        % Test the model with Test-Time Augmentation (TTA)
+        final_predictions = zeros(size(test_labels));
+        final_conf = zeros(size(test_labels));
         
-        % Test the model
-        [predictions, confidence] = model.test(test_images);
+        % Loop over each test image
+        for img_idx = 1:size(test_images, 1)
+            % Get the current test image
+            image = test_images(img_idx, :);
+            
+            % Apply augmentations to the image
+            augmented_images = augmentData(image, test_labels(img_idx), [27, 18]);
+            
+            % Predict on augmented images
+            [predictions, ~] = model.test(augmented_images);
+            
+            % Majority voting: select the most common prediction
+            final_predictions(img_idx) = mode(predictions);
+        end
         
         % Calculate accuracy and metrics for this fold
-        [accuracy, precision, recall, f1_score, confusionMatrix] = calculateMetrics(predictions, test_labels);
+        [accuracy, precision, recall, f1_score, confusionMatrix] = calculateMetrics(final_predictions, test_labels);
         
         % Store the accuracy and other metrics
         cv_results(i, fold) = accuracy;
