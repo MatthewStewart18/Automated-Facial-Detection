@@ -1,6 +1,3 @@
-clear all
-close all
-
 % Add relevant files to WD
 addpath ../model
 addpath ../../images
@@ -32,7 +29,7 @@ switch modelType
         params = {};
         labels(labels == -1) = 0;
     case ModelType.RF
-        numTrees = 275;
+        numTrees = 250;
         params = {};
     otherwise
         error('Unsupported ModelType');
@@ -46,6 +43,8 @@ cv = cvpartition(labels, 'KFold', Kfold, 'Stratify', true);
 % Arrays to store performance results and for overall ROC
 all_confidences = [];
 all_true_labels = [];
+misclassified_images_all = []; % To store misclassified images from all folds
+misclassified_labels_all = []; % To store labels of misclassified images
 
 % Cross-validation loop
 for fold = 1:Kfold
@@ -71,6 +70,7 @@ for fold = 1:Kfold
     % Test the model with Test-Time Augmentation (TTA)
     final_predictions = zeros(size(test_labels));
     final_conf = zeros(size(test_labels));
+    misclassified_indices = []; % Store indices of misclassified samples for this fold
     
     % Loop over each test image
     for img_idx = 1:size(test_images, 1)
@@ -89,11 +89,20 @@ for fold = 1:Kfold
         else
             final_conf(img_idx) = mean(confidence);
         end
+        
+        % Check for misclassification
+        if final_predictions(img_idx) ~= test_labels(img_idx)
+            misclassified_indices = [misclassified_indices; img_idx];
+        end
     end
     
     % Store true labels and confidences for overall ROC
     all_true_labels = [all_true_labels; test_labels];
     all_confidences = [all_confidences; final_conf];
+    
+    % Save misclassified images and labels from this fold
+    misclassified_images_all = [misclassified_images_all; test_images(misclassified_indices, :)];
+    misclassified_labels_all = [misclassified_labels_all; test_labels(misclassified_indices)];
     
     % Calculate accuracy and metrics for this fold
     [accuracy, precision, recall, f1_score, confusionMatrix] = calculateMetrics(final_predictions, test_labels);
@@ -119,6 +128,19 @@ fprintf('Precision: %.4f\n', avg_precision);
 fprintf('Recall: %.4f\n', avg_recall);
 fprintf('F1 Score: %.4f\n', avg_f1_score);
 fprintf('Confusion Matrix (TP, FP, FN, TN): [%d, %d, %d, %d]\n', avg_confusion_matrix);
+
+% Display all misclassified images in a single figure
+num_misclassified = size(misclassified_images_all, 1);
+figure;
+rows = ceil(sqrt(num_misclassified));
+cols = ceil(num_misclassified / rows);
+for idx = 1:num_misclassified
+    img = reshape(misclassified_images_all(idx, :), [27, 18]); % Assuming 27x18 image size
+    subplot(rows, cols, idx);
+    imshow(img, []);
+    title(sprintf('Label: %d, Conf: %.2f', misclassified_labels_all(idx), final_conf(idx)));
+end
+sgtitle('All Misclassified Images'); % Add a supertitle to the figure
 
 % Plot overall ROC curve
 rocCurve(all_true_labels, all_confidences);
