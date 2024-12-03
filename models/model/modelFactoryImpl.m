@@ -17,7 +17,7 @@ addpath ../../preprocessing-utils
 
 % Set current model and feature configurations
 modelType = ModelType.KNN;
-featureType = FeatureType.EdgesPCA;
+featureType = FeatureType.RawPix;
 preprocessingType = PreprocessingType.HistEq;
 
 % Define model parameters
@@ -26,6 +26,7 @@ switch modelType
         params = struct('kerneloption', 2, 'kernel', 'polyhomog');
     case ModelType.KNN
         params = struct('K', round(sqrt(size(train_labels, 1))));
+        params = struct('K', 1);
     case ModelType.LG
         params = {};
         train_labels(train_labels == -1) = 0;
@@ -75,6 +76,3 @@ end
 
 % Evaluate the model
 [~, ~] = model.evaluate(final_predictions, test_labels, test_images);
-
-% Plot ROC curve
-rocCurve(test_labels, final_conf);

@@ -16,7 +16,7 @@ addpath ../../feature-extraction-utils
 addpath ../../feature-extraction-utils/feature-extractors
 
 % Set current Model
-modelType = ModelType.RF;
+modelType = ModelType.SVM;
 featureType = FeatureType.HOG;
 preprocessingType = PreprocessingType.HistEq;
 
@@ -32,7 +32,7 @@ testImage = imread(sprintf('../../detection-images/%s.jpg', currentImage));
 % Sliding window parameters
 windowSize = [27, 18];
 stepSize = [1, 1];    
-confidenceThreshold = 0.67;
+confidenceThreshold = 0.8;
 NMSThreshold = 0.05;
 
 % Run sliding window

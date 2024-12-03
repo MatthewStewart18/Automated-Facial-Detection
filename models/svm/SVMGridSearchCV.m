@@ -18,12 +18,12 @@ images = [Xtrain; Xtest];
 labels = [Ytrain; Ytest];
 
 % Set current model and feature configurations
-modelType = ModelType.KNN;
-featureType = FeatureType.LBP;
+modelType = ModelType.SVM;
+featureType = FeatureType.EdgesPCA;
 preprocessingType = PreprocessingType.HistEq;
 
-% K values e
-K_values = 9:2:49;
+% kernel options range
+kernel_options = 1:5;
 
 % Create stratified K-fold partitions on the training data
 rng(45);
@@ -31,12 +31,12 @@ Kfold = 5;
 cv = cvpartition(labels, 'KFold', Kfold, 'Stratify', true);
 
 % Array to store performance results for each hyperparameter setting
-cv_results = zeros(length(K_values), Kfold);
+cv_results = zeros(length(kernel_options), Kfold);
 metrics_results = struct('Precision', [], 'Recall', [], 'F1', [], 'ConfusionMatrix', []);
 
 % Grid search loop
-for i = 1:length(K_values)
-    K = K_values(i);  % Current hyperparameter value
+for i = 1:length(kernel_options)
+    degree = kernel_options(i);  % Current hyperparameter value
     
     % Cross-validation loop
     for fold = 1:Kfold
@@ -51,7 +51,7 @@ for i = 1:length(K_values)
         test_labels = labels(test_idx);
 
         % Train the model
-        params = struct('K', K);
+        params = struct('kerneloption', degree, 'kernel', 'poly');
         [train_images, train_labels] = augmentData(train_images, train_labels, [27, 18]);
         model = ModelFactory(modelType, featureType, preprocessingType, params);
         model = model.train(train_images, train_labels);
@@ -91,36 +91,36 @@ end
 avg_accuracy = mean(cv_results, 2);
 
 % Filter to find the best K above a certain threshold (e.g., K >= 5)
-[~, best_K_value] = max(avg_accuracy);
-best_K = K_values(best_K_value);
+[~, best_degree_value] = max(avg_accuracy);
+best_degree = kernel_options(best_degree_value);
 
 % Extract and display the best metrics
-best_precision = mean(metrics_results(best_K_value).Precision);
-best_recall = mean(metrics_results(best_K_value).Recall);
-best_f1_score = mean(metrics_results(best_K_value).F1);
-best_confusion_matrix = round(mean(metrics_results(best_K_value).ConfusionMatrix, 1));
+best_precision = mean(metrics_results(best_degree_value).Precision);
+best_recall = mean(metrics_results(best_degree_value).Recall);
+best_f1_score = mean(metrics_results(best_degree_value).F1);
+best_confusion_matrix = round(mean(metrics_results(best_degree_value).ConfusionMatrix, 1));
 
-fprintf('\nBest k-value: %d with average accuracy: %.4f%%\n', best_K, avg_accuracy(best_K_value));
+fprintf('\nBest degree: %d with average accuracy: %.4f%%\n', best_degree, avg_accuracy(best_degree_value));
 fprintf('Precision: %.4f\n', best_precision);
 fprintf('Recall: %.4f\n', best_recall);
 fprintf('F1 Score: %.4f\n', best_f1_score);
 fprintf('Confusion Matrix (TP, FP, FN, TN): [%d, %d, %d, %d]\n', best_confusion_matrix);
 
-% Plot the average accuracy for each K value
+% Plot the average accuracy for each degree value
 figure;
-plot(K_values, avg_accuracy, '-o', 'LineWidth', 2, 'MarkerSize', 8);
-xlabel('Value of K');
+plot(kernel_options, avg_accuracy, '-o', 'LineWidth', 2, 'MarkerSize', 8);
+xlabel('Polynomial Degree');
 ylabel('Average Accuracy');
-title(sprintf('%s %s Hyperparameter Tuning', modelType, featureType));
+title(sprintf('%s Polynomial Kernel %s Hyperparameter Tuning', modelType, featureType));
 grid on;
-xticks(K_values);
-xlim([min(K_values), max(K_values)]);
-ylim([min(avg_accuracy)-0.01, max(avg_accuracy)+0.01]);
+xticks(kernel_options);
+xlim([min(kernel_options), max(kernel_options)]);
+ylim([min(avg_accuracy)-0.01, max(avg_accuracy)+0.1]);
 
 % Annotate the best K on the graph
 hold on;
-best_k_value = K_values(best_K_value);
-best_acc = avg_accuracy(best_K_value);
-plot(best_k_value, best_acc, 'ro', 'MarkerSize', 10, 'LineWidth', 2);
-text(best_k_value, best_acc, sprintf(' Best K=%d, Accuracy=%.4f', best_k_value, best_acc), ...
+best_degree_value = kernel_options(best_degree_value);
+best_acc = avg_accuracy(best_degree_value);
+plot(best_degree_value, best_acc, 'ro', 'MarkerSize', 10, 'LineWidth', 2);
+text(best_degree_value, best_acc, sprintf(' Best degree=%d, Accuracy=%.4f', best_degree_value, best_acc), ...
      'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'right');

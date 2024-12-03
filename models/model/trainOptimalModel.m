@@ -18,18 +18,19 @@ addpath ../../preprocessing-utils
 % Concatenate images vertically (rows correspond to images)
 images = [Xtrain; Xtest];
 labels = [Ytrain; Ytest];
+
 % Augment image set
 [images, labels] = augmentData(images, labels, [27, 18]);
 
 % Set current model and feature configurations
-modelType = ModelType.RF;
+modelType = ModelType.SVM;
 featureType = FeatureType.HOG;
 preprocessingType = PreprocessingType.HistEq;
 
 % Define model parameters
 switch modelType
     case ModelType.SVM
-        params = struct('kerneloption', 2, 'kernel', 'polyhomog');
+        params = struct('kerneloption', 0.25, 'kernel', 'gaussian', 'C', 8);
     case ModelType.KNN
         params = struct('K', round(sqrt(size(train_labels, 1))));
     case ModelType.LG

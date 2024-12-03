@@ -5,8 +5,13 @@ function visualiseResults(testImage, detections, groundTruthPath, modelType, fea
     fclose(gt_file);
     groundTruth = [gt_data{1}, gt_data{2}, gt_data{3}, gt_data{4}];
     
+    IoUThreshold = 0.5;
     % Evaluate and print metrics
+<<<<<<< Updated upstream
     [accuracy, precision, recall, cumtp, cumfp, fn] = evaluateDetections(detections, groundTruth, 0.5);
+=======
+    [accuracy, precision, recall, cumtp, cumfp, fn] = evaluateDetections(detections, groundTruth, IoUThreshold);
+>>>>>>> Stashed changes
     fprintf('Accuracy: %.3f, Precision: %.3f, Recall: %.3f\n, TP: %.3f, FP: %.3f, FN: %.3fd\n', ...
         accuracy, precision(end), recall(end), round(cumtp(end)), round(cumfp(end), fn));
     

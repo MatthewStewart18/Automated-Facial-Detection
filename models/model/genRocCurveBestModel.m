@@ -15,16 +15,17 @@ images = [Xtrain; Xtest];
 labels = [Ytrain; Ytest];
 
 % Set current model and feature configurations
-modelType = ModelType.RF;
+modelType = ModelType.SVM;
 featureType = FeatureType.HOG;
 preprocessingType = PreprocessingType.HistEq;
 
 % Define model parameters
 switch modelType
     case ModelType.SVM
-        params = struct('kerneloption', 2, 'kernel', 'polyhomog');
+        params = struct('kerneloption', 0.5, 'kernel', 'gaussian', 'C', 8);
     case ModelType.KNN
         params = struct('K', round(sqrt(size(labels, 1))));
+        params = struct('K', 1);
     case ModelType.LG
         params = {};
         labels(labels == -1) = 0;
