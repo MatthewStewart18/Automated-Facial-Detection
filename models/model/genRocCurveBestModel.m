@@ -1,11 +1,5 @@
-% Add relevant files to WD
-addpath ../model
-addpath ../../images
-addpath ../../utils
-addpath ../../feature-extraction-utils
-addpath ../../feature-extraction-utils/feature-extractors
-addpath ../../preprocessing-utils
-
+clear all;
+close all;
 % Load training data without augmentation
 [Xtrain, Ytrain] = loadFaceImages('../../images/face_train.cdataset', -1);
 [Xtest, Ytest] = loadFaceImages('../../images/face_test.cdataset', -1);
@@ -16,16 +10,15 @@ labels = [Ytrain; Ytest];
 
 % Set current model and feature configurations
 modelType = ModelType.SVM;
-featureType = FeatureType.HOG;
+featureType = FeatureType.LBP;
 preprocessingType = PreprocessingType.HistEq;
 
 % Define model parameters
 switch modelType
     case ModelType.SVM
-        params = struct('kerneloption', 0.5, 'kernel', 'gaussian', 'C', 8);
+        params = struct('kerneloption', 5, 'kernel', 'gaussian', 'C', 25);
     case ModelType.KNN
         params = struct('K', round(sqrt(size(labels, 1))));
-        params = struct('K', 1);
     case ModelType.LG
         params = {};
         labels(labels == -1) = 0;
@@ -46,6 +39,9 @@ all_confidences = [];
 all_true_labels = [];
 misclassified_images_all = []; % To store misclassified images from all folds
 misclassified_labels_all = []; % To store labels of misclassified images
+
+% Initialize storage for misclassified confidences
+misclassified_conf_all = [];
 
 % Cross-validation loop
 for fold = 1:Kfold
@@ -72,7 +68,8 @@ for fold = 1:Kfold
     final_predictions = zeros(size(test_labels));
     final_conf = zeros(size(test_labels));
     misclassified_indices = []; % Store indices of misclassified samples for this fold
-    
+    misclassified_conf = [];    % Store confidences of misclassified samples for this fold
+
     % Loop over each test image
     for img_idx = 1:size(test_images, 1)
         image = test_images(img_idx, :);
@@ -94,6 +91,7 @@ for fold = 1:Kfold
         % Check for misclassification
         if final_predictions(img_idx) ~= test_labels(img_idx)
             misclassified_indices = [misclassified_indices; img_idx];
+            misclassified_conf = [misclassified_conf; final_conf(img_idx)];
         end
     end
     
@@ -101,10 +99,11 @@ for fold = 1:Kfold
     all_true_labels = [all_true_labels; test_labels];
     all_confidences = [all_confidences; final_conf];
     
-    % Save misclassified images and labels from this fold
+    % Save misclassified images, labels, and confidences from this fold
     misclassified_images_all = [misclassified_images_all; test_images(misclassified_indices, :)];
     misclassified_labels_all = [misclassified_labels_all; test_labels(misclassified_indices)];
-    
+    misclassified_conf_all = [misclassified_conf_all; misclassified_conf];
+
     % Calculate accuracy and metrics for this fold
     [accuracy, precision, recall, f1_score, confusionMatrix] = calculateMetrics(final_predictions, test_labels);
     
@@ -116,19 +115,8 @@ for fold = 1:Kfold
     metrics_results.ConfusionMatrix(fold, :) = confusionMatrix;
 end
 
-% Calculate average metrics across folds
-avg_accuracy = mean(cv_results);
-avg_precision = mean(metrics_results.Precision);
-avg_recall = mean(metrics_results.Recall);
-avg_f1_score = mean(metrics_results.F1);
-avg_confusion_matrix = round(mean(metrics_results.ConfusionMatrix, 1));
-
-% Display results
-fprintf('Average Accuracy: %.4f%%\n', avg_accuracy);
-fprintf('Precision: %.4f\n', avg_precision);
-fprintf('Recall: %.4f\n', avg_recall);
-fprintf('F1 Score: %.4f\n', avg_f1_score);
-fprintf('Confusion Matrix (TP, FP, FN, TN): [%d, %d, %d, %d]\n', avg_confusion_matrix);
+% Normalize misclassified confidences between 0 and 1
+misclassified_conf_all = normalize(misclassified_conf_all, 'range');
 
 % Display all misclassified images in a single figure
 num_misclassified = size(misclassified_images_all, 1);
@@ -139,7 +127,7 @@ for idx = 1:num_misclassified
     img = reshape(misclassified_images_all(idx, :), [27, 18]); % Assuming 27x18 image size
     subplot(rows, cols, idx);
     imshow(img, []);
-    title(sprintf('Label: %d, Conf: %.2f', misclassified_labels_all(idx), final_conf(idx)));
+    title(sprintf('Label: %d, Conf: %.2f', misclassified_labels_all(idx), misclassified_conf_all(idx)));
 end
 sgtitle('All Misclassified Images'); % Add a supertitle to the figure
 
